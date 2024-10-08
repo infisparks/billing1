@@ -31,6 +31,7 @@ export default function Navbar() {
               
             </li>
             <li>
+              
               <Link
                 className={` ${pathname === "/contact" ? "active" : ""}`}
                 href="/time-table"
