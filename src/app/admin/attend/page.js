@@ -123,7 +123,7 @@ const Approval = () => {
             <div key={id} className="col-md-6 mb-4"> 
               <div className="card shadow-sm border-light"> 
                 <div className="card-body"> 
-                  <p><strong>Date:</strong> {appointmentDate}</p> 
+                  <p><strong>Dates:</strong> {appointmentDate}</p> 
                   <p><strong>Time:</strong> {appointmentTime}</p> 
                   <p><strong>Doctor:</strong> {doctor}</p> 
                   <p><strong>Attendance Status:</strong> {renderAttendanceDot(attended)}</p> 
