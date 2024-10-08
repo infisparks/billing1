@@ -25,39 +25,47 @@ const LoadingSkeleton = () => (
 export default function DoctorDetails() {
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); 
-  const uid = new URLSearchParams(window.location.search).get("uid");
+  const router = useRouter();
+  const [uid, setUid] = useState(null); // State to hold the uid
 
   useEffect(() => {
-    const fetchDoctorDetails = async () => {
-      setLoading(true);
-      const cachedDoctor = localStorage.getItem(`doctor_${uid}`);
-      
-      if (cachedDoctor) {
-        setDoctor(JSON.parse(cachedDoctor));
-        setLoading(false);
-      }
+    // Get the uid from the URL after component mounts
+    const currentUid = new URLSearchParams(window.location.search).get("uid");
+    setUid(currentUid); // Set uid state
+  }, []);
 
-      try {
-        const dbRef = ref(db);
-        const snapshot = await get(child(dbRef, `doctors/${uid}`));
-        if (snapshot.exists()) {
-          const doctorData = snapshot.val();
-          setDoctor(doctorData);
-          localStorage.setItem(`doctor_${uid}`, JSON.stringify(doctorData)); // Cache in local storage
-          console.log("Fetched doctor:", doctorData);
-        } else {
-          console.log("No data available");
+  useEffect(() => {
+    if (uid) {
+      const fetchDoctorDetails = async () => {
+        setLoading(true);
+        const cachedDoctor = localStorage.getItem(`doctor_${uid}`);
+        
+        if (cachedDoctor) {
+          setDoctor(JSON.parse(cachedDoctor));
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching doctor details: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchDoctorDetails();
-  }, [uid]);
+        try {
+          const dbRef = ref(db);
+          const snapshot = await get(child(dbRef, `doctors/${uid}`));
+          if (snapshot.exists()) {
+            const doctorData = snapshot.val();
+            setDoctor(doctorData);
+            localStorage.setItem(`doctor_${uid}`, JSON.stringify(doctorData)); // Cache in local storage
+            console.log("Fetched doctor:", doctorData);
+          } else {
+            console.log("No data available");
+          }
+        } catch (error) {
+          console.error("Error fetching doctor details: ", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchDoctorDetails();
+    }
+  }, [uid]); // Fetch doctor details only if uid is set
 
   if (loading) {
     return <LoadingSkeleton />; // Show skeleton while loading
