@@ -45,6 +45,7 @@ export default function Schedule() {
                   </div>
                 </div>
               </div>
+              
             </div>
             <div className="col-lg-4 col-md-12 col-12">
               {/* <!-- single-schedule --> */}
