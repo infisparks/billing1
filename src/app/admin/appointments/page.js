@@ -129,7 +129,7 @@ const AppointmentsPage = () => {
         onClick={() => setSelectedDate(today)} 
         className="btn btn-primary mb-4"
       >
-        Today's Appointments
+        Today Appointments
       </button>
 
       {/* Export to Excel Button */}
