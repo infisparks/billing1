@@ -8,19 +8,19 @@ export default function Vission() {
       id: "item1",
       icon: "icofont-tick-mark",
       title: "Our Mission",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Quis ipsum suspendisse.",
+      desc: "At Medzeal, our mission is to enhance the quality of life for our patients through specialized physiotherapy and holistic wellness services.",
     },
     {
       id: "item2",
       icon: "icofont-tick-mark",
       title: "Our Planning",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Quis ipsum suspendisse.",
+      desc: "At Medzeal, we provide personalized treatment plans, holistic wellness integration, and community outreach to empower patients in their health journeys.",
     },
     {
       id: "item3",
       icon: "icofont-tick-mark",
       title: "Our Vision",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Quis ipsum suspendisse.",
+      desc: "Our vision is to be a leading holistic health provider, empowering individuals to achieve optimal well-being through innovative therapies and support.",
     },
   ]);
 

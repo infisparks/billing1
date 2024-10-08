@@ -7,9 +7,7 @@ export default function About() {
         <div className="single-footer">
           <h2>About Us</h2>
           <p>
-            Lorem ipsum dolor sit am consectetur adipisicing elit do eiusmod
-            tempor incididunt ut labore dolore magna.
-          </p>
+          At Medzeal, we offer comprehensive physiotherapy and wellness services to support your health and well-being.  </p>
 
           <ul className="social">
             <li>

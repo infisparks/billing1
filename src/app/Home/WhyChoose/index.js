@@ -1,5 +1,4 @@
 import SectionHead from "@/components/SectionHead";
-
 import Video from "./Video";
 
 export default function WhyChoose() {
@@ -10,8 +9,8 @@ export default function WhyChoose() {
           <div className="row">
             <div className="col-lg-12">
               <SectionHead
-                title="We Offer Different Services To Improve Your Health"
-                desc="Lorem ipsum dolor sit amet consectetur adipiscing elit praesent aliquet. pretiumts"
+                title="Why Choose Medzeal for Your Health Needs"
+                desc="Committed to providing top-notch physiotherapy and wellness services for a healthier lifestyle."
               />
             </div>
           </div>
@@ -20,42 +19,35 @@ export default function WhyChoose() {
               <div className="choose-left">
                 <h3>Who We Are</h3>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Maecenas pharetra antege vel est lobortis, a commodo magna
-                  rhoncus. In quis nisi non emet quam pharetra commodo.
+                  At Medzeal, we are dedicated to improving your health through specialized physiotherapy and wellness services. Our team of experienced professionals is committed to your well-being.
                 </p>
                 <p>
-                  Class aptent taciti sociosqu ad litora torquent per conubia
-                  nostra, per inceptos himenaeos.
+                  We focus on personalized care tailored to meet your individual health needs, ensuring a holistic approach to wellness.
                 </p>
                 <div className="row">
                   <div className="col-lg-6">
                     <ul className="list">
                       <li>
-                        <i className="fa fa-caret-right"></i>Maecenas vitae
-                        luctus nibh.
+                        <i className="fa fa-caret-right"></i>Expert physiotherapists with specialized training.
                       </li>
                       <li>
-                        <i className="fa fa-caret-right"></i>Duis massa massa.
+                        <i className="fa fa-caret-right"></i>Comprehensive wellness services for overall health.
                       </li>
                       <li>
-                        <i className="fa fa-caret-right"></i>Aliquam feugiat
-                        interdum.
+                        <i className="fa fa-caret-right"></i>Patient-centered approach to treatment.
                       </li>
                     </ul>
                   </div>
                   <div className="col-lg-6">
                     <ul className="list">
                       <li>
-                        <i className="fa fa-caret-right"></i>Maecenas vitae
-                        luctus nibh.
+                        <i className="fa fa-caret-right"></i>Innovative therapies and techniques for optimal recovery.
                       </li>
                       <li>
-                        <i className="fa fa-caret-right"></i>Duis massa massa.
+                        <i className="fa fa-caret-right"></i>Community outreach initiatives promoting healthy living.
                       </li>
                       <li>
-                        <i className="fa fa-caret-right"></i>Aliquam feugiat
-                        interdum.
+                        <i className="fa fa-caret-right"></i>Commitment to continuous improvement and education.
                       </li>
                     </ul>
                   </div>

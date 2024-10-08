@@ -21,19 +21,19 @@ export default function Home() {
       <Header />
       <Hero />
       <Schedule />
-      <Features />
-      <Funfact />
+      {/* <Features /> */}
+      {/* <Funfact /> */}
       <WhyChoose />
-      <CallAction />
-      <Portfolio />
+      {/* <CallAction /> */}
+      {/* <Portfolio /> */}
       <Services />
       <Testimonial />
-      <Departments />
+      {/* <Departments /> */}
       <Pricing />
-      <Team />
-      <Blog />
-      <Clients />
-      <Appoinment />
+      {/* <Team /> */}
+      {/* <Blog /> */}
+      {/* <Clients /> */}
+      {/* <Appoinment /> */}
     </>
   );
 }

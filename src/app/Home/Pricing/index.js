@@ -9,9 +9,8 @@ export default function Pricing() {
           <div className="row">
             <div className="col-lg-12">
               <SectionHead
-                title="We Provide You The Best Treatment In Reasonable Price"
-                desc="Lorem ipsum dolor sit amet consectetur adipiscing elit
-                  praesent aliquet. pretiumts"
+                title="Affordable Physiotherapy and Wellness Services"
+                desc="We provide specialized care tailored to your needs without compromising quality."
               />
             </div>
           </div>

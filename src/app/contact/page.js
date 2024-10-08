@@ -59,8 +59,9 @@ export default function Contact() {
                   <div id="myMap">
                     <iframe
                       id="gmap_canvas"
-                      src="https://maps.google.com/maps?q=new%20york&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                      src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d60300.70967001149!2d73.027695!3d19.160477!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7bf0ae43ce5c7%3A0x8e8a308084276d65!2sMedFord!5e0!3m2!1sen!2sus!4v1728403436733!5m2!1sen!2sus"
                     ></iframe>
+                  
                   </div>
                 </div>
               </div>
@@ -169,8 +170,8 @@ export default function Contact() {
                 <div className="single-info">
                   <i className="icofont icofont-ui-call"></i>
                   <div className="content">
-                    <h3>+(000) 1234 56789</h3>
-                    <p>info@company.com</p>
+                    <h3>+91 70441 78786</h3>
+                    <p>medzealpcw@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -178,8 +179,8 @@ export default function Contact() {
                 <div className="single-info">
                   <i className="icofont-google-map"></i>
                   <div className="content">
-                    <h3>2 Fir e Brigade Road</h3>
-                    <p>Chittagong, Lakshmipur</p>
+                    <h3>Bluebells</h3>
+                    <p>Mumbra Bypass</p>
                   </div>
                 </div>
               </div>
@@ -187,7 +188,7 @@ export default function Contact() {
                 <div className="single-info">
                   <i className="icofont icofont-wall-clock"></i>
                   <div className="content">
-                    <h3>Mon - Sat: 8am - 5pm</h3>
+                    <h3>Mon - Sat: 8am - 10pm</h3>
                     <p>Sunday Closed</p>
                   </div>
                 </div>

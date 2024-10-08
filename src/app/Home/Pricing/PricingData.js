@@ -2,39 +2,33 @@ import Link from "next/link";
 
 const Data = [
   {
-    title: "Plastic Surgery",
-    icon: "icofont-ui-cut",
-    price: 199,
+    title: "Neuro Physiotherapy",
+    icon: "icofont-therapy",
     features: [
-      { name: "Lorem ipsum dolor sit", status: true },
-      { name: "Cubitur sollicitudin fentum", status: true },
-      { name: "Nullam interdum enim", status: false },
-      { name: "Donec ultricies metus", status: false },
-      { name: "Pellentesque eget nibh", status: false },
+      { name: "Personalized treatment plans", status: true },
+      { name: "Expert neurologist consultations", status: true },
+      { name: "Advanced rehabilitation techniques", status: true },
+      { name: "Continuous progress monitoring", status: true },
     ],
   },
   {
-    title: "Teeth Whitening",
-    icon: "icofont-tooth",
-    price: 299,
+    title: "Cardiorespiratory Physiotherapy",
+    icon: "icofont-lungs",
     features: [
-      { name: "Lorem ipsum dolor sit", status: true },
-      { name: "Cubitur sollicitudin fentum", status: true },
-      { name: "Nullam interdum enim", status: true },
-      { name: "Donec ultricies metus", status: false },
-      { name: "Pellentesque eget nibh", status: false },
+      { name: "Breathing exercises and techniques", status: true },
+      { name: "Tailored cardiovascular programs", status: true },
+      { name: "Post-operative recovery support", status: true },
+      { name: "Patient education and support", status: true },
     ],
   },
   {
-    title: "Heart Surgery",
-    icon: "icofont-heart-beat",
-    price: 399,
+    title: "Sports Therapy",
+    icon: "icofont-sport",
     features: [
-      { name: "Lorem ipsum dolor sit", status: true },
-      { name: "Cubitur sollicitudin fentum", status: true },
-      { name: "Nullam interdum enim", status: true },
-      { name: "Donec ultricies metus", status: true },
-      { name: "Pellentesque eget nibh", status: true },
+      { name: "Injury prevention strategies", status: true },
+      { name: "Rehabilitation for athletes", status: true },
+      { name: "Customized exercise programs", status: true },
+      { name: "Performance enhancement techniques", status: true },
     ],
   },
 ];
@@ -50,12 +44,6 @@ export default function PricingData() {
                 <i className={`icofont ${pricing.icon}`}></i>
               </div>
               <h4 className="title">{pricing.title}</h4>
-              <div className="price">
-                <p className="amount">
-                  ${pricing.price}
-                  <span>/ Per Visit</span>
-                </p>
-              </div>
             </div>
             <ul className="table-list">
               {pricing.features.map((feature, index) => (
