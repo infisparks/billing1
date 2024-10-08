@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, set, push, get } from "firebase/database";
 import { app } from '@/lib/firebaseConfig';
 import Breadcrumbs from "@/components/Breadcrumbs";
-import WorkHour from "./WorkHour";
+import WorkHour from "./WorkHour";  // Import the WorkHour component
 import Header from "@/components/Header/Header";
 import Popup from "@/components/Popup";
 
@@ -31,7 +31,7 @@ export default function Appointment() {
     email: "",
     phone: "",
     treatment: "",
-    subService: "", // Add this state for sub-services
+    subService: "",
     doctor: "",
     appointmentDate: "",
     appointmentTime: "",
@@ -79,7 +79,7 @@ export default function Appointment() {
       }
     });
 
-    fetchDoctors(); // Fetch doctors data when the component mounts
+    fetchDoctors();
 
     const params = new URLSearchParams(window.location.search);
     const uid = params.get('uid'); // Extract UID from URL
@@ -215,7 +215,7 @@ export default function Appointment() {
     setUserDetails({
       ...userDetails,
       treatment: selectedTreatment,
-      subService: "", // Reset sub-service when changing treatment
+      subService: "",
       doctor: defaultDoctor,
     });
   };
@@ -292,63 +292,60 @@ export default function Appointment() {
                       </div>
                     </div>
                     <div className="col-lg-6 col-md-6 col-12 mb-3">
-  
-  <select
-    name="treatment"
-    value={userDetails.treatment}
-    onChange={handleTreatmentChange}
-    className="form-select"
-    required
-  >
-    <option value="" disabled>
-      Select Treatment
-    </option>
-    <option value="Physiotherapy">Physiotherapy</option>
-    <option value="Wellness Center">Wellness Center</option>
-  </select>
-</div>
+                      <select
+                        name="treatment"
+                        value={userDetails.treatment}
+                        onChange={handleTreatmentChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Treatment
+                        </option>
+                        <option value="Physiotherapy">Physiotherapy</option>
+                        <option value="Wellness Center">Wellness Center</option>
+                      </select>
+                    </div>
 
-{userDetails.treatment && subServices[userDetails.treatment] && (
-  <div className="col-lg-6 col-md-6 col-12 mb-3">
-   
-    <select
-      name="subService"
-      value={userDetails.subService}
-      onChange={handleSubServiceChange}
-      className="form-select"
-      required
-    >
-      <option value="" disabled>
-        Select Sub-Service
-      </option>
-      {subServices[userDetails.treatment].map((subService, index) => (
-        <option key={index} value={subService}>
-          {subService}
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+                    {userDetails.treatment && subServices[userDetails.treatment] && (
+                      <div className="col-lg-6 col-md-6 col-12 mb-3">
+                        <select
+                          name="subService"
+                          value={userDetails.subService}
+                          onChange={handleSubServiceChange}
+                          className="form-select"
+                          required
+                        >
+                          <option value="" disabled>
+                            Select Sub-Service
+                          </option>
+                          {subServices[userDetails.treatment].map((subService, index) => (
+                            <option key={index} value={subService}>
+                              {subService}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
 
-<div className="col-lg-6 col-md-6 col-12 mb-3">
- 
-  <select
-    name="doctor"
-    value={userDetails.doctor}
-    onChange={handleDoctorChange}
-    className="form-select"
-    required
-  >
-    <option value="" disabled>
-      Select Doctor
-    </option>
-    {filteredDoctors.map((doctor, index) => (
-      <option key={index} value={doctor.name}>
-        {doctor.name}
-      </option>
-    ))}
-  </select>
-</div>
+                    <div className="col-lg-6 col-md-6 col-12 mb-3">
+                      <select
+                        name="doctor"
+                        value={userDetails.doctor}
+                        onChange={handleDoctorChange}
+                        className="form-select"
+                        required
+                      >
+                        <option value="" disabled>
+                          Select Doctor
+                        </option>
+                        {filteredDoctors.map((doctor, index) => (
+                          <option key={index} value={doctor.name}>
+                            {doctor.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
@@ -403,10 +400,14 @@ export default function Appointment() {
                 )}
               </div>
             </div>
+
+            {/* WorkHour component on the right side */}
+            <div className="col-lg-5 col-md-12 col-12">
+              <WorkHour />
+            </div>
           </div>
         </div>
       </section>
-      
     </>
   );
 }

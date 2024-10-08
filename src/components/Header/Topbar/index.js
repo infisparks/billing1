@@ -18,19 +18,19 @@ export default function Topbar() {
                   <Link href="/contact">Contact</Link>
                 </li>
                 <li>
-                  <Link href="/faq">FAQ</Link>
+                  {/* <Link href="/faq">FAQ</Link> */}
                 </li>
               </ul>
             </div>
             <div className="col-lg-6 col-md-7 col-12">
               <ul className="top-contact">
                 <li>
-                  <i className="fa fa-phone"></i>+880 1234 56789
+                  <i className="fa fa-phone"></i>+91 70441 78786
                 </li>
                 <li>
                   <i className="fa fa-envelope"></i>
                   <Link href="mailto:support@yourmail.com">
-                    support@yourmail.com
+                    medzealpcw@gmail.com
                   </Link>
                 </li>
               </ul>

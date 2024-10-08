@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import BlogCard from "@/components/BlogCard";
 import BlogSidebar from "@/components/BlogSidebar";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Header from "@/components/Header/Header";
@@ -33,6 +32,11 @@ export default function BlogGrid() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Function to remove HTML tags
+  const stripHtmlTags = (html) => {
+    return html.replace(/<\/?[^>]+(>|$)/g, "");
+  };
+
   return (
     <>
       <Header />
@@ -45,12 +49,54 @@ export default function BlogGrid() {
                 {currentPosts.map((blog) => (
                   <div key={blog.id} className="col-lg-6 col-md-6 col-12">
                     <Link href={`/blog-single/${blog.id}`}>
-                      <BlogCard
-                        image={blog.thumbnail}
-                        date={blog.date}
-                        title={blog.title}
-                        desc={DOMPurify.sanitize(blog.content).replace(/<\/?[^>]+(>|$)/g, "")}
-                      />
+                      <div
+                        style={{
+                          position: "relative",
+                          margin: "15px 0",
+                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                          borderRadius: "8px",
+                          overflow: "hidden",
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            height: 0,
+                            paddingTop: "100%", // 1:1 Aspect Ratio
+                            position: "relative",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <img
+                            src={blog.thumbnail}
+                            alt={blog.title}
+                            style={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              width: "auto",
+                              height: "100%",
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              transform: "translate(-50%, -50%)",
+                              objectFit: "contain", // Prevents cropping, maintains aspect ratio
+                            }}
+                          />
+                        </div>
+                        <div style={{ padding: "10px", textAlign: "center" }}>
+                          <span style={{ fontSize: "14px", color: "#666", display: "block" }}>
+                            {blog.date}
+                          </span>
+                          <h3 style={{ margin: "5px 0", fontSize: "18px" }}>{blog.title}</h3>
+                          <p style={{ fontSize: "16px", color: "#333", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                            {stripHtmlTags(DOMPurify.sanitize(blog.content))}
+                          </p>
+                          <Link href={`/blog-single/${blog.id}`} style={{ color: "#0070f3" }}>
+                            Read More
+                          </Link>
+                        </div>
+                      </div>
                     </Link>
                   </div>
                 ))}

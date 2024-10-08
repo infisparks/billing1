@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { app } from '@/lib/firebaseConfig'; // Ensure you import the initialized app
+import { app } from '@/lib/firebaseConfig';
 
 export default function WorkHour() {
   const auth = getAuth(app);
   const db = getDatabase(app);
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Add error state
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -24,39 +25,44 @@ export default function WorkHour() {
               id: key,
               ...value,
             }))
-            .filter((appointment) => appointment.approved); // Filter to show only approved appointments
-
+            .filter((appointment) => appointment.approved);
+          
           setAppointments(appointmentList);
         } else {
-          setAppointments([]); // No appointments found
+          setAppointments([]);
         }
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
+      }, (error) => {
+        setError(error); // Handle errors
+        setLoading(false);
       });
 
-      return () => unsubscribe(); // Clean up the subscription on unmount
+      return () => unsubscribe();
     } else {
-      setLoading(false); // If user is not logged in, stop loading
+      setLoading(false);
     }
   }, [auth]);
 
   if (loading) {
-    return <div className="text-white">Loading appointments...</div>; // Loading indicator
+    return <div className="text-white">Loading appointments...</div>;
   }
+
+  if (error) {
+    return <div className="text-red-500">Error fetching appointments: {error.message}</div>;
+  }
+
+  const firstThreeAppointments = appointments.slice(0, 3).reverse();
 
   return (
     <div className="work-hour p-6 bg-blue-600 rounded-lg shadow-lg">
-      <h3 className="text-3xl text-white mb-4">Your Appointments</h3>
+      <h3 className="text-3xl text-white mb-4">Your Last Appointments</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {appointments.length > 0 ? (
-          appointments.map((appointment) => (
+        {firstThreeAppointments.length > 0 ? (
+          firstThreeAppointments.map((appointment) => (
             <div key={appointment.id} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
-              <h4 className="text-2xl text-blue-600 font-semibold mb-2">{appointment.name}</h4>
-              <p className="text-gray-700"><strong>Email:</strong> {appointment.email}</p>
-              <p className="text-gray-700"><strong>Phone:</strong> {appointment.phone}</p>
-              <p className="text-gray-700"><strong>Time:</strong> {appointment.time}</p>
-              <p className="text-gray-700"><strong>Doctor:</strong> {appointment.doctor}</p>
-              <p className="text-gray-700"><strong>Date:</strong> {appointment.createdDate}</p>
-              <p className="text-gray-700"><strong>Message:</strong> {appointment.message}</p>
+              <h4 className="text-blue-600 font-semibold mb-2">{appointment.doctor}</h4>
+              <p className="text-gray-700"><strong>Date:</strong> {appointment.appointmentDate}</p>
+              <p className="text-gray-700"><strong>Time:</strong> {appointment.appointmentTime}</p>
             </div>
           ))
         ) : (

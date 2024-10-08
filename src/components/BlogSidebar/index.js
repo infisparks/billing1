@@ -57,8 +57,14 @@ export default function BlogSidebar() {
           <h3 className="title">Recent Posts</h3>
           {recentPosts.map((post) => (
             <div className="single-post" key={post.id}>
-              <div className="image">
-                <Image src={post.thumbnail} alt={post.title} width={200} height={200} />
+              <div className="image" style={{ position: "relative", width: "100px", height: "100px", overflow: "hidden" }}>
+                <Image 
+                  src={post.thumbnail} 
+                  alt={post.title} 
+                  layout="fill" // Fill the parent container
+                  objectFit="contain" // Maintain aspect ratio without cropping
+                  className="img-fluid" // Ensure responsive behavior
+                />
               </div>
               <div className="content">
                 <h5>

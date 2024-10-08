@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 
 export default function BlogSingle({ params }) {
-  const { id } = params;  // Accessing the route parameter directly
+  const { id } = params; // Accessing the route parameter directly
   const [blog, setBlog] = useState(null);
 
   useEffect(() => {
@@ -41,13 +41,27 @@ export default function BlogSingle({ params }) {
               <div className="single-main mb-4">
                 <div className="news-head text-center">
                   {blog.thumbnail && (
-                    <Image 
-                      src={blog.thumbnail} 
-                      alt={blog.title} 
-                      width={557} 
-                      height={373} 
-                      className="img-fluid rounded"
-                    />
+                    <div style={{ 
+                      width: "100%", 
+                      height: "auto", 
+                      maxWidth: "557px", 
+                      margin: "0 auto",
+                      overflow: "hidden"
+                    }}>
+                      <Image 
+                        src={blog.thumbnail} 
+                        alt={blog.title} 
+                        layout="responsive" // Ensures responsiveness
+                        width={557} 
+                        height={373} 
+                        className="img-fluid rounded"
+                        style={{
+                          objectFit: "cover", // Ensures image covers the area without distortion
+                          width: "100%",
+                          height: "auto"
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
                 <h1 className="news-title text-center my-3">{blog.title}</h1>

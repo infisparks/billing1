@@ -7,13 +7,13 @@ import { useRouter } from 'next/navigation';
 const Dashboard = () => {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
-  const [blogsCount, setBlogsCount] = useState(0); // State for blog count
+  const [blogsCount, setBlogsCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const appointmentsRef = ref(db, 'appointments');
     const usersRef = ref(db, 'users');
-    const blogsRef = ref(db, 'blogs'); // Reference for blogs
+    const blogsRef = ref(db, 'blogs');
 
     // Fetching the total number of appointments
     onValue(appointmentsRef, (snapshot) => {
@@ -32,7 +32,7 @@ const Dashboard = () => {
     // Fetching the total number of blogs
     onValue(blogsRef, (snapshot) => {
       const data = snapshot.val();
-      const count = data ? Object.keys(data).length : 0; // Count blog posts
+      const count = data ? Object.keys(data).length : 0;
       setBlogsCount(count);
     });
   }, []);
@@ -42,44 +42,31 @@ const Dashboard = () => {
       <h1 className="display-4 mb-4 text-center">Dashboard</h1>
 
       <div className="row">
-        <div 
-          className="col-md-4 mb-4"
-          onClick={() => router.push('/admin/users')}
-        >
-          <div className="card text-center shadow-sm border-light">
-            <div className="card-body">
-              <h2 className="card-title">Total Users</h2>
-              <p className="card-text display-4">{usersCount}</p>
-              <button className="btn btn-primary">View Users</button>
+        {/* Create a consistent card size using Bootstrap classes */}
+        {[
+          { title: 'Total Users', count: usersCount, path: '/admin/users' },
+          { title: 'Total Appointments', count: appointmentsCount, path: '/admin/appointments' },
+          { title: 'Total Blogs', count: blogsCount, path: '/admin/blogmake' },
+          { title: 'Price Graph', path: '/admin/graphprice' },
+          { title: 'Total Appointments Graph', path: '/admin/graphtotal' },
+          { title: 'Contact Us', path: '/admin/contact' },  // New Contact Us card
+        ].map((card, index) => (
+          <div 
+            key={index}
+            className="col-md-4 mb-4 d-flex"
+            onClick={() => router.push(card.path)}
+          >
+            <div className="card flex-fill text-center shadow-sm border-light">
+              <div className="card-body">
+                <h2 className="card-title">{card.title}</h2>
+                {card.count !== undefined && (
+                  <p className="card-text display-4">{card.count}</p>
+                )}
+                <button className="btn btn-primary">View {card.title}</button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div 
-          className="col-md-4 mb-4"
-          onClick={() => router.push('/admin/appointments')}
-        >
-          <div className="card text-center shadow-sm border-light">
-            <div className="card-body">
-              <h2 className="card-title">Total Appointments</h2>
-              <p className="card-text display-4">{appointmentsCount}</p>
-              <button className="btn btn-primary">View Appointments</button>
-            </div>
-          </div>
-        </div>
-
-        <div 
-          className="col-md-4 mb-4"
-          onClick={() => router.push('/admin/blogmake')}
-        >
-          <div className="card text-center shadow-sm border-light">
-            <div className="card-body">
-              <h2 className="card-title">Total Blogs</h2>
-              <p className="card-text display-4">{blogsCount}</p>
-              <button className="btn btn-primary">View Blogs</button>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
