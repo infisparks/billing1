@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth } from "firebase/auth";
-import { getDatabase, ref, set, push } from "firebase/database";
+import { getDatabase, ref, set, push, get } from "firebase/database";
 import { app } from '../../../lib/firebaseConfig'; // Ensure you import the initialized app
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Header from "@/components/Header/Header";
@@ -35,6 +35,7 @@ export default function Staff() {
     appointmentTime: "",
     message: "",
   });
+  const [doctors, setDoctors] = useState([]); // State to hold doctors
 
   const subServices = {
     Physiotherapy: [
@@ -59,6 +60,23 @@ export default function Staff() {
       "Hijama Therapy",
       "Chiropractic Services",
     ],
+  };
+
+  useEffect(() => {
+    fetchDoctors(); // Fetch doctors on component mount
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      const doctorsRef = ref(db, 'doctors'); // Ensure this path matches your Firebase structure
+      const snapshot = await get(doctorsRef);
+      if (snapshot.exists()) {
+        const doctorsData = snapshot.val();
+        setDoctors(Object.values(doctorsData)); // Set the state with the doctors' data
+      }
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -195,10 +213,12 @@ export default function Staff() {
                           onChange={(e) => setUserDetails({ ...userDetails, doctor: e.target.value })}
                           required
                         >
-                          <option value="">Doctor</option>
-                          <option value="Dr. Akther Hossain">Dr. Akther Hossain</option>
-                          <option value="Dr. Dery Alex">Dr. Dery Alex</option>
-                          <option value="Dr. Jovis Karon">Dr. Jovis Karon</option>
+                          <option value="">Select Doctor</option>
+                          {doctors.map((doctor, index) => (
+                            <option key={index} value={doctor.name}>
+                              {doctor.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </div>

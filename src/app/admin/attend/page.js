@@ -1,7 +1,7 @@
 "use client"; 
 import React, { useEffect, useState, useMemo } from 'react'; 
 import { db } from '../../../lib/firebaseConfig'; 
-import { ref, onValue, remove, update } from 'firebase/database'; 
+import { ref, onValue, update } from 'firebase/database'; 
 
 const Approval = () => { 
   const [appointments, setAppointments] = useState(null); 
@@ -17,7 +17,6 @@ const Approval = () => {
     }); 
   }, []); 
 
-  // Filter Appointments to only show unapproved appointments
   const filteredAppointments = useMemo(() => { 
     if (!appointments) return []; 
 
@@ -26,6 +25,7 @@ const Approval = () => {
     ); 
 
     return allAppointments.filter(({ appointmentDate, doctor, message, name, phone, approved }) => { 
+      const isApproved = approved; 
       const isDateMatch = selectedDate ? appointmentDate === selectedDate : true; 
       const isMonthMatch = selectedMonth ? appointmentDate.split('-')[1] === selectedMonth : true; 
       const isYearMatch = selectedYear ? appointmentDate.split('-')[0] === selectedYear : true; 
@@ -34,74 +34,34 @@ const Approval = () => {
         message.toLowerCase().includes(searchTerm.toLowerCase()) || 
         name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         phone.includes(searchTerm); 
-      
-      // Only include unapproved appointments
-      return isDateMatch && isMonthMatch && isYearMatch && isSearchMatch && !approved; 
+
+      return isApproved && isDateMatch && isMonthMatch && isYearMatch && isSearchMatch; 
     }); 
   }, [appointments, selectedDate, selectedMonth, selectedYear, searchTerm]); 
 
-  // Calculate Total Price 
-  const totalPrice = useMemo(() => { 
-    return filteredAppointments.reduce((acc, { price }) => acc + price, 0); 
-  }, [filteredAppointments]); 
-
-  // Today's Date 
   const today = new Date().toISOString().split('T')[0]; 
 
-  // Delete Appointment with Confirmation
-  const handleDelete = (userId, appointmentId) => {
-    const confirmed = window.confirm("Do you really want to delete this appointment?");
-    if (confirmed) {
-      const appointmentRef = ref(db, `appointments/${userId}/${appointmentId}`);
-      remove(appointmentRef)
-        .then(() => {
-          // Successfully deleted from Firebase
-          setAppointments((prev) => {
-            if (!prev || !prev[userId]) {
-              return prev; // If there's no previous state or no appointments for this user, return the previous state
-            }
-            const updatedAppointments = { ...prev };
-            delete updatedAppointments[userId][appointmentId]; // Remove the appointment from the user's appointments
-  
-            // If the user has no more appointments, delete the user entry
-            if (Object.keys(updatedAppointments[userId]).length === 0) {
-              delete updatedAppointments[userId];
-            }
-  
-            return updatedAppointments;
-          });
-          alert("Appointment deleted successfully.");
-        })
-        .catch((error) => {
-          console.error("Error deleting appointment:", error);
-          alert("Failed to delete the appointment.");
-        });
-    }
-  };
-  
-  
-
-  // Approve Appointment 
-  const handleApprove = (id, uid) => { 
+  const handleAttendance = (id, uid, status) => {
     const appointmentRef = ref(db, `appointments/${uid}/${id}`); 
-   
-
-    // Update the appointment to include the uid of the approver
-    update(appointmentRef, { approved: true })
-      .then(() => {
-        // Update the user's approved appointments
-        return update(userApprovalRef, { approved: true });
-      })
+    update(appointmentRef, { attended: status })
       .catch((error) => {
-        console.error("Error updating approval:", error);
+        console.error("Error updating attendance:", error);
       });
-  }; 
+  };
+
+  const renderAttendanceDot = (attended) => {
+    if (attended === undefined) return <span className="badge bg-warning" title="Pending">Pending</span>;
+    return attended ? (
+      <span className="badge bg-success" title="Attended">✔️ Attended</span>
+    ) : (
+      <span className="badge bg-danger" title="Not Attended">❌ Not Attended</span>
+    );
+  };
 
   return ( 
     <div className="container mt-5"> 
       <h1 className="display-4 text-center mb-4">Appointments</h1> 
 
-      {/* Search Input */} 
       <div className="mb-4"> 
         <input 
           type="text" 
@@ -112,7 +72,6 @@ const Approval = () => {
         /> 
       </div> 
 
-      {/* Filter Inputs */} 
       <div className="mb-4 row"> 
         <div className="col-md-4 mb-3"> 
           <label className="form-label">Select Date:</label> 
@@ -151,40 +110,36 @@ const Approval = () => {
         </div> 
       </div> 
 
-      {/* Today's Appointments Button */} 
       <button 
         onClick={() => setSelectedDate(today)} 
         className="btn btn-primary mb-4" 
       > 
-        Today Appointments 
+        Today's Appointments 
       </button> 
-
-      {/* Total Price Display */} 
-      <h2 className="h5 mb-4">Total Price: ${totalPrice}</h2> 
 
       <div className="row"> 
         {filteredAppointments.length > 0 ? ( 
-          filteredAppointments.map(({ id, uid, appointmentDate, appointmentTime, doctor, approved, message, price, name, phone }) => ( 
+          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, price, name, phone }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
-              <div className="card shadow-sm border-light hover-shadow"> 
+              <div className="card shadow-sm border-light"> 
                 <div className="card-body"> 
                   <p><strong>Date:</strong> {appointmentDate}</p> 
                   <p><strong>Time:</strong> {appointmentTime}</p> 
                   <p><strong>Doctor:</strong> {doctor}</p> 
-                  <p><strong>Approved:</strong> {approved ? 'Yes' : 'No'}</p> 
+                  <p><strong>Attendance Status:</strong> {renderAttendanceDot(attended)}</p> 
                   <p><strong>Message:</strong> {message}</p> 
                   <p><strong>Price:</strong> ${price}</p> 
                   <p><strong>Name:</strong> {name}</p> 
                   <p><strong>Phone:</strong> {phone}</p> 
-                  <button onClick={() => handleApprove(id, uid)} className="btn btn-success me-2"> 
-                    Approve 
-                  </button> 
-                  <button onClick={() => handleDelete(uid, id)} className="btn btn-danger me-2"> 
-                    Delete 
-                  </button> 
-                  <a href={`tel:${phone}`} className="btn btn-info"> 
+                  <a href={`tel:${phone}`} className="btn btn-info me-2"> 
                     Call 
                   </a> 
+                  <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-primary me-2"> 
+                    Attend 
+                  </button> 
+                  <button onClick={() => handleAttendance(id, userId, false)} className="btn btn-secondary"> 
+                    Not Attend 
+                  </button> 
                 </div> 
               </div> 
             </div> 
@@ -196,7 +151,6 @@ const Approval = () => {
         )} 
       </div> 
 
-      {/* Custom CSS for hover effect */} 
       <style jsx>{` 
         .hover-shadow:hover { 
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 

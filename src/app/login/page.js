@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { app } from '@/lib/firebaseConfig'; // Adjust the path as necessary
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, ref, set, get } from 'firebase/database';
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -31,11 +31,20 @@ const LoginPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Save user details to Realtime Database
-      await set(ref(db, 'users/' + user.uid), {
-        email: user.email,
-        uid: user.uid,
-      });
+      // Check if user already exists in the database
+      const userRef = ref(db, 'users/' + user.uid);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        // If the user doesn't exist in the database, store their details
+        await set(userRef, {
+          email: user.email,
+          uid: user.uid,
+        });
+        console.log("New user data saved to database");
+      } else {
+        console.log("User already exists in database");
+      }
 
       console.log("User Info: ", user);
       router.push('/'); // Redirect to home after successful login

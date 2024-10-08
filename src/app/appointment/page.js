@@ -406,6 +406,7 @@ export default function Appointment() {
           </div>
         </div>
       </section>
+      
     </>
   );
 }

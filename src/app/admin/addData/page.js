@@ -4,11 +4,9 @@ import { useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, set, push, get } from "firebase/database";
 import { app } from '../../../lib/firebaseConfig';
-import WorkHour from '../../appointment/WorkHour'
+import WorkHour from '../../appointment/WorkHour';
 import Header from "../../../components/Header/Header";
-
 import Breadcrumbs from "../../../components/Breadcrumbs";
-
 
 const DateInput = ({ selectedDate, onDateChange }) => {
   return (
@@ -31,7 +29,7 @@ export default function Staff() {
     email: "",
     phone: "",
     treatment: "",
-    subCategory: "", // New state for subcategory
+    subCategory: "",
     doctor: "",
     appointmentDate: "",
     appointmentTime: "",
@@ -39,6 +37,7 @@ export default function Staff() {
   });
   const [searchPhone, setSearchPhone] = useState("");
   const [appointmentUid, setAppointmentUid] = useState("");
+  const [doctors, setDoctors] = useState([]); // State to hold doctors
 
   // Define subcategories
   const subCategories = {
@@ -64,6 +63,23 @@ export default function Staff() {
       "Hijama Therapy",
       "Chiropractic Services",
     ],
+  };
+
+  useEffect(() => {
+    fetchDoctors(); // Fetch doctors on component mount
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      const doctorsRef = ref(db, 'doctors');
+      const snapshot = await get(doctorsRef);
+      if (snapshot.exists()) {
+        const doctorsData = snapshot.val();
+        setDoctors(Object.values(doctorsData)); // Set the state with the doctors' data
+      }
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    }
   };
 
   const fetchAppointmentByPhone = async () => {
@@ -131,7 +147,7 @@ export default function Staff() {
   return (
     <>
       <Header />
-      <Breadcrumbs title="Get Your Appointment" menuText=" Appointment" />
+      <Breadcrumbs title="Get Your Appointment" menuText="Appointment" />
 
       <section className="appointment single-page">
         <div className="container">
@@ -208,7 +224,6 @@ export default function Staff() {
                         >
                           <option value="">Select Treatment</option>
                           <option value="Physiotherapy">Physiotherapy</option>
-                          
                           <option value="Wellness Center">Wellness Center</option>
                         </select>
                       </div>
@@ -244,13 +259,16 @@ export default function Staff() {
                           onChange={(e) => setUserDetails({ ...userDetails, doctor: e.target.value })}
                           required
                         >
-                          <option value="">Doctor</option>
-                          <option value="Dr. Akther Hossain">Dr. Akther Hossain</option>
-                          <option value="Dr. Dery Alex">Dr. Dery Alex</option>
-                          <option value="Dr. Jovis Karon">Dr. Jovis Karon</option>
+                          <option value="">Select Doctor</option>
+                          {doctors.map((doctor, index) => (
+                            <option key={index} value={doctor.name}>
+                              {doctor.name}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </div>
+
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
                         <DateInput 
@@ -259,6 +277,7 @@ export default function Staff() {
                         />
                       </div>
                     </div>
+
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
                         <input
@@ -271,6 +290,7 @@ export default function Staff() {
                         />
                       </div>
                     </div>
+
                     <div className="col-lg-12 col-md-12 col-12">
                       <div className="form-group">
                         <textarea
@@ -283,6 +303,7 @@ export default function Staff() {
                       </div>
                     </div>
                   </div>
+
                   <div className="row">
                     <div className="col-12">
                       <div className="form-group">

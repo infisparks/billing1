@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link'; // Import Link from next/link
 import { db } from '../../../lib/firebaseConfig'; 
@@ -28,8 +28,8 @@ const Pages = () => {
     <div className="container mt-5">
       <h1 className="text-center">Admin Dashboard</h1>
       <div className="row justify-content-center mt-4">
-        <div className="col-md-4">
-          <div className="card text-center">
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
             <div className="card-body">
               <h5 className="card-title">Create Appointment</h5>
               <p className="card-text">Add a new appointment for a user.</p>
@@ -37,8 +37,8 @@ const Pages = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-4">
-          <div className="card text-center">
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
             <div className="card-body">
               <h5 className="card-title">Book Appointment</h5>
               <p className="card-text">Book an existing appointment for a user.</p>
@@ -46,8 +46,8 @@ const Pages = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-4">
-          <div className="card text-center">
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
             <div className="card-body">
               <h5 className="card-title">Approved Appointments</h5>
               <p className="card-text">Manage approved appointments.</p>
@@ -55,6 +55,24 @@ const Pages = () => {
               <p className="mt-3">
                 Unapproved Appointments: <strong>{unapprovedCount}</strong>
               </p>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h5 className="card-title">User Presence</h5>
+              <p className="card-text">Track user attendance for appointments.</p>
+              <Link href="/admin/attend" className="btn btn-warning">Mark User Present</Link>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h5 className="card-title">User History</h5>
+              <p className="card-text">View user appointment history.</p>
+              <Link href="/admin/userhistory" className="btn btn-info">User History</Link>
             </div>
           </div>
         </div>

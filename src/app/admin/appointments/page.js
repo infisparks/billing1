@@ -2,9 +2,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { db } from '../../../lib/firebaseConfig'; 
 import { ref, onValue } from 'firebase/database';
+import * as XLSX from 'xlsx';
 
 const AppointmentsPage = () => {
-  const [appointments, setAppointments] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
@@ -14,19 +15,23 @@ const AppointmentsPage = () => {
     const appointmentsRef = ref(db, 'appointments');
 
     onValue(appointmentsRef, (snapshot) => {
-      setAppointments(snapshot.val());
+      const data = snapshot.val();
+      if (data) {
+        const attendedAppointments = Object.entries(data).flatMap(([key, appointment]) => 
+          Object.entries(appointment).map(([id, details]) => ({ ...details, id }))
+        ).filter(({ approved, attended }) => approved && attended); 
+
+        setAppointments(attendedAppointments);
+      } else {
+        setAppointments([]); 
+      }
     });
   }, []);
 
-  // Filter Appointments
   const filteredAppointments = useMemo(() => {
     if (!appointments) return [];
-    
-    const allAppointments = Object.entries(appointments).flatMap(([key, appointment]) => 
-      Object.entries(appointment).map(([id, details]) => ({ ...details, id }))
-    );
 
-    return allAppointments.filter(({ appointmentDate, doctor, message, name, phone }) => {
+    return appointments.filter(({ appointmentDate, doctor, message, name, phone }) => {
       const isDateMatch = selectedDate ? appointmentDate === selectedDate : true;
       const isMonthMatch = selectedMonth ? appointmentDate.split('-')[1] === selectedMonth : true;
       const isYearMatch = selectedYear ? appointmentDate.split('-')[0] === selectedYear : true;
@@ -40,13 +45,30 @@ const AppointmentsPage = () => {
     });
   }, [appointments, selectedDate, selectedMonth, selectedYear, searchTerm]);
 
-  // Calculate Total Price
   const totalPrice = useMemo(() => {
     return filteredAppointments.reduce((acc, { price }) => acc + price, 0);
   }, [filteredAppointments]);
 
-  // Today's Date
   const today = new Date().toISOString().split('T')[0];
+
+  // Function to handle export to Excel
+  const handleExport = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredAppointments.map(appointment => ({
+      'Date': appointment.appointmentDate,
+      'Time': appointment.appointmentTime,
+      'Doctor': appointment.doctor,
+      'Message': appointment.message,
+      'Price': appointment.price,
+      'Name': appointment.name,
+      'Phone': appointment.phone,
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments');
+
+    // Generate buffer
+    XLSX.writeFile(workbook, 'appointments.xlsx');
+  };
 
   return (
     <div className="container mt-5">
@@ -107,24 +129,31 @@ const AppointmentsPage = () => {
         onClick={() => setSelectedDate(today)} 
         className="btn btn-primary mb-4"
       >
-        Today Appointments
+        Today's Appointments
+      </button>
+
+      {/* Export to Excel Button */}
+      <button 
+        onClick={handleExport} 
+        className="btn btn-success mb-4 float-end"
+      >
+        Export to Excel
       </button>
 
       {/* Total Price Display */}
-      <h2 className="h5 mb-4">Total Price: ${totalPrice}</h2>
+      <h2 className="h5 mb-4">Total Price: ₹{totalPrice}</h2>
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
-          filteredAppointments.map(({ id, appointmentDate, appointmentTime, doctor, approved, message, price, name, phone }) => (
+          filteredAppointments.map(({ id, appointmentDate, appointmentTime, doctor, message, price, name, phone }) => (
             <div key={id} className="col-md-6 mb-4">
               <div className="card shadow-sm border-light hover-shadow">
                 <div className="card-body">
                   <p><strong>Date:</strong> {appointmentDate}</p>
                   <p><strong>Time:</strong> {appointmentTime}</p>
                   <p><strong>Doctor:</strong> {doctor}</p>
-                  <p><strong>Approved:</strong> {approved ? 'Yes' : 'No'}</p>
                   <p><strong>Message:</strong> {message}</p>
-                  <p><strong>Price:</strong> ${price}</p>
+                  <p><strong>Price:</strong> ₹{price}</p>
                   <p><strong>Name:</strong> {name}</p>
                   <p><strong>Phone:</strong> {phone}</p>
                 </div>

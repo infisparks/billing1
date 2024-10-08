@@ -20,7 +20,7 @@ export default function Sliders(props) {
     {
       id: "slider1",
       bgImg: HeroBg1,
-      title: "We Provide <span>Medicals</span> Services <br/> That You Can <span>Trust!</span>",
+      title: "Just like a <span>doctor heals</span> the body, a therapist helps heal the mind.",
       subTitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed nisl pellentesque,<br/>faucibus libero eu, gravida quam.",
       button: {
         text: "Get Appointment",
@@ -34,7 +34,7 @@ export default function Sliders(props) {
     {
       id: "slider2",
       bgImg: HeroBg2,
-      title: "We Provide <span>Medical</span> Services <br/> That You Can <span>Trust!</span>",
+      title: "True healing begins when we <span>stop running </span> from our pain and start facing it.",
       subTitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed nisl pellentesque,<br/>faucibus libero eu, gravida quam.",
       button: {
         text: "Get Appointment",
@@ -48,7 +48,7 @@ export default function Sliders(props) {
     {
       id: "slider3",
       bgImg: HeroBg3,
-      title: "We Provide <span>Medical</span> Services <br/> That You Can <span>Trust!</span>",
+      title: "In therapy, we learn that <span>emotions</span> are like waves; they come, they go, and they can be </span>understood.",
       subTitle: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed nisl pellentesque,<br/>faucibus libero eu, gravida quam.",
       button: {
         text: "Get Appointment",
