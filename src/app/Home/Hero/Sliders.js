@@ -20,7 +20,7 @@ export default function Sliders(props) {
     {
       id: "slider1",
       bgImg: HeroBg1,
-      title: "Your Health, Our <span> <br/>Priority—Experience <br/> Comprehensive</span> Physiotherapy Care",
+      title: "Your Health, Our <span> <br/>Priority—Experience <br/> Comprehensive</span> Physiotherapy <br/> Care",
       subTitle: "True healing begins when we stop running from <br/>our pain and start facing it.",
       button: {
         text: "Get Appointment",

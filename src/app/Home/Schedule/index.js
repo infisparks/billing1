@@ -8,27 +8,28 @@ export default function Schedule() {
           <div className="row">
             <div className="col-lg-4 col-md-6 col-12">
               {/* <!-- single-schedule --> */}
-              <div className="single-schedule first">
+              <div className="single-schedule">
                 <div className="inner">
                   <div className="icon">
-                    <i className="fa fa-ambulance"></i>
+                    <i className="fa fa-stethoscope"></i>
                   </div>
                   <div className="single-content">
-                    <span>Immediate Assistance</span>
-                    <h4>Emergency Physiotherapy</h4>
+                    <span>Comprehensive Care</span>
+                    <h4>Specialized Physiotherapy</h4>
                     <p>
-                      Our expert physiotherapists are available for urgent care to address acute injuries and pain relief.
+                      We provide expert physiotherapy services tailored to address chronic pain, rehabilitation, and mobility improvement.
                     </p>
-                    <Link href="/time-table">
+                    <Link href="/service">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
                     </Link>
                   </div>
                 </div>
               </div>
             </div>
+
             <div className="col-lg-4 col-md-6 col-12">
               {/* <!-- single-schedule --> */}
-              <div className="single-schedule middle">
+              <div className="single-schedule">
                 <div className="inner">
                   <div className="icon">
                     <i className="icofont-prescription"></i>
@@ -37,7 +38,7 @@ export default function Schedule() {
                     <span>Appointment Scheduling</span>
                     <h4>Therapist Timetable</h4>
                     <p>
-                      View our specialists availability and book your sessions for personalized physiotherapy treatments.
+                      View our specialists' availability and book your sessions for personalized physiotherapy treatments.
                     </p>
                     <Link href="/time-table">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
@@ -45,11 +46,11 @@ export default function Schedule() {
                   </div>
                 </div>
               </div>
-              
             </div>
+
             <div className="col-lg-4 col-md-12 col-12">
               {/* <!-- single-schedule --> */}
-              <div className="single-schedule last">
+              <div className="single-schedule">
                 <div className="inner">
                   <div className="icon">
                     <i className="icofont-ui-clock"></i>
