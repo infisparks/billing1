@@ -38,7 +38,7 @@ export default function Schedule() {
                     <span>Appointment Scheduling</span>
                     <h4>Therapist Timetable</h4>
                     <p>
-                      View our specialists' availability and book your sessions for personalized physiotherapy treatments.
+                      View our specialists availability and book your sessions for personalized physiotherapy treatments.
                     </p>
                     <Link href="/time-table">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
