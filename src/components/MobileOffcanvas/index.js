@@ -59,7 +59,7 @@ export default function MobileOffcanvas() {
                     <Link
                       className="menu-arrow"
                       onClick={() => toggleSubMenu(1)}
-                      href="#"
+                      href="/"
                     >
                       Home 
                     </Link>
@@ -70,7 +70,7 @@ export default function MobileOffcanvas() {
                     <Link
                       className="menu-arrow"
                       onClick={() => toggleSubMenu(2)}
-                      href="#"
+                      href="/doctors"
                     >
                       Doctors 
                     </Link>
@@ -82,9 +82,39 @@ export default function MobileOffcanvas() {
                     <Link
                       className="menu-arrow"
                       onClick={() => toggleSubMenu(3)}
-                      href="#"
+                      href="/service"
                     >
                       Services 
+                    </Link>
+                  
+                  </li>
+                  <li>
+                    <Link
+                      className="menu-arrow"
+                      onClick={() => toggleSubMenu(3)}
+                      href="/time-table"
+                    >
+                      Time Table
+                    </Link>
+                  
+                  </li>
+                  <li>
+                    <Link
+                      className="menu-arrow"
+                      onClick={() => toggleSubMenu(3)}
+                      href="/blog-grid"
+                    >
+                     Blog
+                    </Link>
+                  
+                  </li>
+                  <li>
+                    <Link
+                      className="menu-arrow"
+                      onClick={() => toggleSubMenu(3)}
+                      href="/contact"
+                    >
+                      Contact us
                     </Link>
                   
                   </li>

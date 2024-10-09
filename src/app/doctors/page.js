@@ -26,7 +26,7 @@ export default function Doctors() {
             doctorsData.push({ ...data, uid: childSnapshot.key });
           });
           setDoctors(doctorsData);
-          console.log("Fetched doctors:", doctorsData); // Log the fetched doctors
+          console.log("Fetched doctors:", doctorsData); 
         } else {
           console.log("No data available");
         }
@@ -40,9 +40,9 @@ export default function Doctors() {
 
   const handleSelectDoctor = (doctor) => {
     const { uid } = doctor;
-    console.log("Doctor selected:", uid); // Log selected doctor UID
-    if (uid) { // Check if uid is defined before redirecting
-      router.push(`/doctor-details?uid=${uid}`); // Redirect to doctor-details page
+    console.log("Doctor selected:", uid);
+    if (uid) { 
+      router.push(`/doctor-details?uid=${uid}`); 
     } else {
       console.error("Doctor UID is undefined");
     }

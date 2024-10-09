@@ -38,8 +38,9 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "Mediplus - Medical and Doctor Next.js Template.",
-  description: "Mediplus - Medical and Doctor Next.js Template.",
+  title: "Medzeal Mumbra - Physiotherapy, Wellness, and Pain Relief Services",
+  description: "Medzeal Mumbra offers expert physiotherapy services for neurological, orthopaedic, sports, and post-op rehabilitation, along with wellness therapies like massage, yoga, chiropractic care, and more.",
+  keywords: "physiotherapy, neuro physiotherapy, cardiorespiratory physiotherapy, sports therapy, speech therapy, pediatric physiotherapy, orthopedic physiotherapy, post-op physiotherapy, geriatric physiotherapy, maternal physiotherapy, massage therapy, yoga, acupuncture, clinical nutrition, VR therapy, de-addiction, hijama, chiropractic",
 };
 
 export default function RootLayout({ children }) {

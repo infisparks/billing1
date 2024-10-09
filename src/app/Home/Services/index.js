@@ -23,7 +23,7 @@ export default function Services() {
                 desc: "Expert care for neurological conditions, enhancing mobility and quality of life.",
               },
               {
-                icon: "icofont-lungs",
+                icon: "icofont-lwungs",
                 title: "Cardiorespiratory Physiotherapy",
                 desc: "Focused treatments for respiratory and cardiac health.",
               },
@@ -43,7 +43,7 @@ export default function Services() {
                 desc: "Specialized physiotherapy for children to aid their development.",
               },
               {
-                icon: "icofont-baby",
+                icon: "icofont-wbaby",
                 title: "Maternal Physiotherapy",
                 desc: "Supporting mothers with tailored therapies for pregnancy and postpartum recovery.",
               },

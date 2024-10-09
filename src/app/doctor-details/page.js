@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; 
 import Image from "next/image";
 import Link from "next/link";
+import Head from "next/head"; // Import Head for SEO tags
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Header from "@/components/Header/Header";
 import { db } from "../../lib/firebaseConfig"; 
@@ -77,6 +78,17 @@ export default function DoctorDetails() {
 
   return (
     <>
+      {/* SEO Meta Tags */}
+      <Head>
+        <title>{`${doctor.name} - ${doctor.role} | Medzeal Mumbra`}</title>
+        <meta name="description" content={`${doctor.name} is a highly qualified ${doctor.role} with expertise in ${doctor.specialization || doctor.role}. Book an appointment at Medzeal Mumbra today.`} />
+        <meta name="keywords" content={`${doctor.name}, ${doctor.role}, ${doctor.specialization}, Medzeal Mumbra, doctors in Mumbra, physiotherapists, wellness center`} />
+        <meta property="og:title" content={`${doctor.name} - ${doctor.role} | Medzeal Mumbra`} />
+        <meta property="og:description" content={`${doctor.name} is a highly qualified ${doctor.role} with expertise in ${doctor.specialization}.`} />
+        <meta property="og:image" content={doctor.photoURL} />
+        <meta property="og:type" content="website" />
+      </Head>
+
       <Header />
       <Breadcrumbs title="Doctor Details" menuText="Doctor Details" />
 
