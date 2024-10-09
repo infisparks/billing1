@@ -208,10 +208,12 @@ export default function Appointment() {
   const handleTreatmentChange = (e) => {
     const selectedTreatment = e.target.value;
     const selectedDoctors = Object.values(doctors).filter(doctor => doctor.role === selectedTreatment);
-    setFilteredDoctors(selectedDoctors.length > 0 ? selectedDoctors : Object.values(doctors));
-
+  
+    setFilteredDoctors(selectedDoctors);
+    
+    // Set the default doctor to the first doctor in the filtered list, if any
     const defaultDoctor = selectedDoctors.length > 0 ? selectedDoctors[0].name : "";
-
+    
     setUserDetails({
       ...userDetails,
       treatment: selectedTreatment,
@@ -219,7 +221,7 @@ export default function Appointment() {
       doctor: defaultDoctor,
     });
   };
-
+  
   const handleSubServiceChange = (e) => {
     setUserDetails({
       ...userDetails,
@@ -328,24 +330,24 @@ export default function Appointment() {
                       </div>
                     )}
 
-                    <div className="col-lg-6 col-md-6 col-12 mb-3">
-                      <select
-                        name="doctor"
-                        value={userDetails.doctor}
-                        onChange={handleDoctorChange}
-                        className="form-select"
-                        required
-                      >
-                        <option value="" disabled>
-                          Select Doctor
-                        </option>
-                        {filteredDoctors.map((doctor, index) => (
-                          <option key={index} value={doctor.name}>
-                            {doctor.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+<div className="col-lg-6 col-md-6 col-12 mb-3">
+  <select
+    name="doctor"
+    value={userDetails.doctor}
+    onChange={handleDoctorChange}
+    className="form-select"
+    required
+  >
+    <option value="" disabled>
+      Select Doctor
+    </option>
+    {filteredDoctors.map((doctor, index) => (
+      <option key={index} value={doctor.name}>
+        {doctor.name}
+      </option>
+    ))}
+  </select>
+</div>
 
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">

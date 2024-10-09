@@ -29,7 +29,7 @@ export default function Topbar() {
                 </li>
                 <li>
                   <i className="fa fa-envelope"></i>
-                  <Link href="mailto:support@yourmail.com">
+                  <Link href="mailto:medzealpcw@gmail.com">
                     medzealpcw@gmail.com
                   </Link>
                 </li>

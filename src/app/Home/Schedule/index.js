@@ -19,7 +19,7 @@ export default function Schedule() {
                     <p>
                       Our expert physiotherapists are available for urgent care to address acute injuries and pain relief.
                     </p>
-                    <Link href="/emergency">
+                    <Link href="/time-table">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
                     </Link>
                   </div>
@@ -39,7 +39,7 @@ export default function Schedule() {
                     <p>
                       View our specialists availability and book your sessions for personalized physiotherapy treatments.
                     </p>
-                    <Link href="/schedule">
+                    <Link href="/time-table">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
                     </Link>
                   </div>
@@ -68,7 +68,7 @@ export default function Schedule() {
                         Sunday <span>Closed</span>
                       </li>
                     </ul>
-                    <Link href="/hours">
+                    <Link href="/time-table">
                       LEARN MORE<i className="fa fa-long-arrow-right"></i>
                     </Link>
                   </div>
