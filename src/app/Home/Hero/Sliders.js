@@ -20,7 +20,7 @@ export default function Sliders(props) {
     {
       id: "slider1",
       bgImg: HeroBg1,
-      title: "Your Health, Our <span> <br/>Priority—Experience  Comprehensive</span> Physiotherapy Care",
+      title: "Your Health, Our <span> <br/>Priority—Experience <br/> Comprehensive</span> Physiotherapy Care",
       subTitle: "True healing begins when we stop running from <br/>our pain and start facing it.",
       button: {
         text: "Get Appointment",
@@ -48,7 +48,7 @@ export default function Sliders(props) {
     {
       id: "slider3",
       bgImg: HeroBg3,
-      title: "Transform Your Mind and Body<br/>with <span>Professional Care</span> and Natural Healing",
+      title: "Transform Your Mind and Body<br/>with <span>Professional Care</span> and <br/> Natural Healing",
       subTitle: "Just like removing dust from a mirror, Hijama <br/>helps remove toxins from the body.",
       button: {
         text: "Get Appointment",
