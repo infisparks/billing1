@@ -21,6 +21,7 @@ const LoginPage = () => {
         // User is signed in, redirect to home
         router.push('/');
       }
+      
     });
 
     return () => unsubscribe(); // Clean up subscription

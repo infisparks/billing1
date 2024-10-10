@@ -36,4 +36,5 @@ export async function POST(req) {
         console.error("Error sending email:", error);
         return new Response(JSON.stringify({ error: 'Error sending email.', details: error.message }), { status: 500 });
     }
+    
 }
