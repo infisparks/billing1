@@ -12,6 +12,7 @@ const AppointmentsEarningsGraphPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [dayData, setDayData] = useState([]);
   const [monthData, setMonthData] = useState([]);
+  const [isDownloading, setIsDownloading] = useState(false); // Track download state
 
   useEffect(() => {
     const appointmentsRef = ref(db, 'appointments');
@@ -52,7 +53,6 @@ const AppointmentsEarningsGraphPage = () => {
     setMonthData(Object.entries(monthEarnings).map(([month, totalPrice]) => ({ month, totalPrice })));
   }, [appointments]);
 
-  // Chart data for day-wise earnings
   const dayEarningsChartData = {
     labels: dayData.map(data => data.date),
     datasets: [
@@ -64,7 +64,6 @@ const AppointmentsEarningsGraphPage = () => {
     ],
   };
 
-  // Chart data for month-wise earnings
   const monthEarningsChartData = {
     labels: monthData.map(data => data.month),
     datasets: [
@@ -77,6 +76,7 @@ const AppointmentsEarningsGraphPage = () => {
   };
 
   const downloadGraph = (type, graphId) => {
+    setIsDownloading(true); // Set downloading state to true
     const chartContainer = document.getElementById(graphId);
     html2canvas(chartContainer).then((canvas) => {
       const imgData = canvas.toDataURL(`image/${type}`);
@@ -90,6 +90,7 @@ const AppointmentsEarningsGraphPage = () => {
         link.download = `${graphId}_graph.${type}`;
         link.click();
       }
+      setIsDownloading(false); // Reset downloading state
     });
   };
 
@@ -102,27 +103,29 @@ const AppointmentsEarningsGraphPage = () => {
           <h2 className="card-title">Daily Earnings</h2>
           <Bar data={dayEarningsChartData} options={{ responsive: true }} />
         </div>
-        <div className="card-footer text-center">
-          <h4>Download Daily Earnings Graph</h4>
-          <button 
-            className="btn btn-primary me-2" 
-            onClick={() => downloadGraph('pdf', 'dailyEarningsChart')}
-          >
-            Download PDF
-          </button>
-          <button 
-            className="btn btn-secondary me-2" 
-            onClick={() => downloadGraph('png', 'dailyEarningsChart')}
-          >
-            Download PNG
-          </button>
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => downloadGraph('jpg', 'dailyEarningsChart')}
-          >
-            Download JPG
-          </button>
-        </div>
+        {!isDownloading && ( // Only show buttons if not downloading
+          <div className="card-footer text-center">
+            <h4>Download Daily Earnings Graph</h4>
+            <button 
+              className="btn btn-primary me-2" 
+              onClick={() => downloadGraph('pdf', 'dailyEarningsChart')}
+            >
+              Download PDF
+            </button>
+            <button 
+              className="btn btn-secondary me-2" 
+              onClick={() => downloadGraph('png', 'dailyEarningsChart')}
+            >
+              Download PNG
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => downloadGraph('jpg', 'dailyEarningsChart')}
+            >
+              Download JPG
+            </button>
+          </div>
+        )}
       </div>
 
       <div id="monthlyEarningsChart" className="card mb-5 shadow-sm">
@@ -130,27 +133,29 @@ const AppointmentsEarningsGraphPage = () => {
           <h2 className="card-title">Monthly Earnings</h2>
           <Bar data={monthEarningsChartData} options={{ responsive: true }} />
         </div>
-        <div className="card-footer text-center">
-          <h4>Download Monthly Earnings Graph</h4>
-          <button 
-            className="btn btn-primary me-2" 
-            onClick={() => downloadGraph('pdf', 'monthlyEarningsChart')}
-          >
-            Download PDF
-          </button>
-          <button 
-            className="btn btn-secondary me-2" 
-            onClick={() => downloadGraph('png', 'monthlyEarningsChart')}
-          >
-            Download PNG
-          </button>
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => downloadGraph('jpg', 'monthlyEarningsChart')}
-          >
-            Download JPG
-          </button>
-        </div>
+        {!isDownloading && ( // Only show buttons if not downloading
+          <div className="card-footer text-center">
+            <h4>Download Monthly Earnings Graph</h4>
+            <button 
+              className="btn btn-primary me-2" 
+              onClick={() => downloadGraph('pdf', 'monthlyEarningsChart')}
+            >
+              Download PDF
+            </button>
+            <button 
+              className="btn btn-secondary me-2" 
+              onClick={() => downloadGraph('png', 'monthlyEarningsChart')}
+            >
+              Download PNG
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => downloadGraph('jpg', 'monthlyEarningsChart')}
+            >
+              Download JPG
+            </button>
+          </div>
+        )}
       </div>
 
       <style jsx>{`

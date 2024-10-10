@@ -79,22 +79,32 @@ const Approval = () => {
     }
   };
   
-  
-
   // Approve Appointment 
-  const handleApprove = (id, uid) => { 
+  const handleApprove = async (id, uid, email, appointmentDate, doctor, message, price) => { 
     const appointmentRef = ref(db, `appointments/${uid}/${id}`); 
-   
 
-    // Update the appointment to include the uid of the approver
-    update(appointmentRef, { approved: true })
-      .then(() => {
-        // Update the user's approved appointments
-        return update(userApprovalRef, { approved: true });
-      })
-      .catch((error) => {
+    try {
+        // Update the appointment to mark it as approved
+        await update(appointmentRef, { approved: true });
+        
+        // Send approval email
+        await fetch('/api/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recipientEmail: email, // Email of the user
+                subject: `Appointment Approved: ${appointmentDate} with Dr. ${doctor}`,
+                text: `Your appointment on ${appointmentDate} with Dr. ${doctor} has been approved.\n\nMessage: ${message}\nPrice: $${price}`
+            }),
+        });
+
+        alert('Appointment approved and email sent successfully!');
+    } catch (error) {
         console.error("Error updating approval:", error);
-      });
+        alert('Error approving appointment.');
+    }
   }; 
 
   return ( 
@@ -164,7 +174,7 @@ const Approval = () => {
 
       <div className="row"> 
         {filteredAppointments.length > 0 ? ( 
-          filteredAppointments.map(({ id, uid, appointmentDate, appointmentTime, doctor, approved, message, price, name, phone }) => ( 
+          filteredAppointments.map(({ id, uid, appointmentDate, appointmentTime, doctor, approved, message, price, name, phone, email }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
               <div className="card shadow-sm border-light hover-shadow"> 
                 <div className="card-body"> 
@@ -174,9 +184,10 @@ const Approval = () => {
                   <p><strong>Approved:</strong> {approved ? 'Yes' : 'No'}</p> 
                   <p><strong>Message:</strong> {message}</p> 
                   <p><strong>Price:</strong> ${price}</p> 
+                  <p><strong>Email:</strong> {email}</p> 
                   <p><strong>Name:</strong> {name}</p> 
                   <p><strong>Phone:</strong> {phone}</p> 
-                  <button onClick={() => handleApprove(id, uid)} className="btn btn-success me-2"> 
+                  <button onClick={() => handleApprove(id, uid, email, appointmentDate, doctor, message, price)} className="btn btn-success me-2"> 
                     Approve 
                   </button> 
                   <button onClick={() => handleDelete(uid, id)} className="btn btn-danger me-2"> 
@@ -207,4 +218,4 @@ const Approval = () => {
   ); 
 }; 
 
-export default Approval;
+export default Approval; 
