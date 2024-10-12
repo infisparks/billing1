@@ -20,6 +20,14 @@ const DateInput = ({ selectedDate, onDateChange }) => {
   );
 };
 
+// Utility function to format time to 12-hour format
+const formatTimeTo12Hour = (time) => {
+  const [hour, minute] = time.split(':');
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = hour % 12 || 12; // Convert to 12-hour format
+  return `${formattedHour}:${minute} ${ampm}`;
+};
+
 export default function Staff() {
   const router = useRouter();
   const auth = getAuth(app);
@@ -81,13 +89,13 @@ export default function Staff() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const formData = new FormData(event.target);
     const treatmentPrices = {
       "Physiotherapy": 200,
       "Wellness Center": 400,
     };
-
+  
     const appointmentData = {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -96,25 +104,37 @@ export default function Staff() {
       subCategory: formData.get("subCategory"),
       doctor: formData.get("doctor"),
       appointmentDate: formData.get("date"),
-      appointmentTime: formData.get("time"),
+      appointmentTime: formatTimeTo12Hour(formData.get("time")), // Format time here
       message: formData.get("message"),
       price: treatmentPrices[formData.get("treatment")],
       approved: true,
       uid: "test", // Add the uid field here
     };
-
+  
     try {
-      // Save appointment data
       const newAppointmentRef = push(ref(db, `appointments/test`)); // Create a unique reference for the appointment
       await set(newAppointmentRef, appointmentData);
       alert("Appointment booked successfully!");
+  
+      // Construct WhatsApp message
+      const message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your 
+  details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Message: ${appointmentData.message}`;
+      // URL encode the message
+      const encodedMessage = encodeURIComponent(message);
+  
+      // Create WhatsApp link
+      const whatsappNumber = appointmentData.phone; // Use the phone number provided by the user
+      const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+  
+      // Open WhatsApp link in a new tab
+      window.open(whatsappLink, "_blank");
       
     } catch (error) {
       console.error("Error during appointment booking:", error);
       alert("Failed to book appointment. Please try again.");
     }
   };
-
+  
   return (
     <>
       <Header />

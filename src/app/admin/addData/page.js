@@ -117,24 +117,45 @@ export default function Staff() {
     }
   };
 
+  const formatTimeTo12Hour = (time) => {
+    const [hour, minute] = time.split(':');
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = hour % 12 || 12; // Convert to 12-hour format
+    return `${formattedHour}:${minute} ${ampm}`;
+  };
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const formData = new FormData(event.target);
     const appointmentData = {
       ...userDetails,
       appointmentDate: formData.get("date"),
-      appointmentTime: formData.get("time"),
+      appointmentTime: formatTimeTo12Hour(formData.get("time")), // Convert time to 12-hour format
       message: formData.get("message"),
     };
-
+  
     try {
       if (appointmentUid) {
         const appointmentsRef = ref(db, `appointments/${appointmentUid}`);
         const newAppointmentRef = push(appointmentsRef);
-
+  
         await set(newAppointmentRef, appointmentData);
         alert("Appointment booked successfully!");
+  
+        // Construct WhatsApp message
+        const message = `Hello ${userDetails.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${userDetails.treatment}\n- Service: ${userDetails.subCategory}\n- Doctor: ${userDetails.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Message: ${appointmentData.message}`;
+        
+        // URL encode the message
+        const encodedMessage = encodeURIComponent(message);
+        
+        // Create WhatsApp link
+        const whatsappNumber = userDetails.phone; // Use the phone number provided by the user
+        const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+  
+        // Open WhatsApp link in a new tab
+        window.open(whatsappLink, "_blank");
+        
       } else {
         alert("No appointment found to update. Please search first.");
       }
@@ -143,6 +164,7 @@ export default function Staff() {
       alert("Failed to update appointment. Please try again.");
     }
   };
+  
 
   return (
     <>

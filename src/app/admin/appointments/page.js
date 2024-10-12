@@ -31,6 +31,7 @@ const AppointmentsPage = () => {
   const filteredAppointments = useMemo(() => {
     if (!appointments) return [];
 
+    
     return appointments.filter(({ appointmentDate, doctor, message, name, phone }) => {
       const isDateMatch = selectedDate ? appointmentDate === selectedDate : true;
       const isMonthMatch = selectedMonth ? appointmentDate.split('-')[1] === selectedMonth : true;

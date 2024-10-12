@@ -79,10 +79,9 @@ const Approval = () => {
     }
   };
   
-  // Approve Appointment 
-  const handleApprove = async (id, uid, email, appointmentDate, doctor, message, price) => { 
+  const handleApprove = async (id, uid, email, appointmentDate, appointmentTime, doctor, phone) => { 
     const appointmentRef = ref(db, `appointments/${uid}/${id}`); 
-
+  
     try {
         // Update the appointment to mark it as approved
         await update(appointmentRef, { approved: true });
@@ -96,16 +95,24 @@ const Approval = () => {
             body: JSON.stringify({
                 recipientEmail: email, // Email of the user
                 subject: `Appointment Approved: ${appointmentDate} with Dr. ${doctor}`,
-                text: `Your appointment on ${appointmentDate} with Dr. ${doctor} has been approved.\n\nMessage: ${message}\nPrice: $${price}`
+                text: `Your appointment on ${appointmentDate} at ${appointmentTime} with Dr. ${doctor} has been approved.`
             }),
         });
-
+  
+        // Prepare WhatsApp message with date and time
+        const whatsappMessage = `Appointment Approved: ${appointmentDate} at ${appointmentTime} with Dr. ${doctor}`;
+        const whatsappLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(whatsappMessage)}`;
+        
         alert('Appointment approved and email sent successfully!');
+  
+        // Open WhatsApp link in a new tab
+        window.open(whatsappLink, '_blank');
     } catch (error) {
         console.error("Error updating approval:", error);
         alert('Error approving appointment.');
     }
-  }; 
+  };
+  
 
   return ( 
     <div className="container mt-5"> 
@@ -187,10 +194,10 @@ const Approval = () => {
                   <p><strong>Email:</strong> {email}</p> 
                   <p><strong>Name:</strong> {name}</p> 
                   <p><strong>Phone:</strong> {phone}</p> 
-                  <button onClick={() => handleApprove(id, uid, email, appointmentDate, doctor, message, price)} className="btn btn-success me-2"> 
-                    Approve 
-                  </button> 
-                  <button onClick={() => handleDelete(uid, id)} className="btn btn-danger me-2"> 
+                  <button onClick={() => handleApprove(id, uid, email, appointmentDate, appointmentTime, doctor, phone)} className="btn btn-success me-2"> 
+  Approve 
+</button>
+     <button onClick={() => handleDelete(uid, id)} className="btn btn-danger me-2"> 
                     Delete 
                   </button> 
                   <a href={`tel:${phone}`} className="btn btn-info"> 

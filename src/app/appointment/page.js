@@ -150,23 +150,26 @@ export default function Appointment() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const formData = new FormData(event.target);
     const treatmentPrices = {
       "Physiotherapy": 200,
       "Wellness Center": 400,
     };
-
+  
     const currentDate = new Date();
     const formattedSubmissionDate = currentDate.toLocaleDateString("en-GB", {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     });
-
-    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const formattedSubmissionTime = currentDate.toLocaleString('en-US', options);
-
+  
+    // Convert to 12-hour format for submission
+    const time = formData.get("time");
+    const [hour, minute] = time.split(":");
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const formattedSubmissionTime = `${(hour % 12 || 12)}:${minute} ${ampm}`;
+  
     const appointmentData = {
       uid: auth.currentUser.uid,
       name: formData.get("name"),
@@ -176,16 +179,16 @@ export default function Appointment() {
       subService: formData.get("subService"),
       doctor: formData.get("doctor"),
       appointmentDate: formData.get("date"),
-      appointmentTime: formData.get("time"),
+      appointmentTime: formattedSubmissionTime, // Use the formatted time here
       message: formData.get("message"),
       price: treatmentPrices[formData.get("treatment")],
       approved: false,
       submissionDate: formattedSubmissionDate,
       submissionTime: formattedSubmissionTime,
     };
-
+  
     const user = auth.currentUser;
-
+  
     if (user) {
       try {
         await set(ref(db, `users/${user.uid}`), {
@@ -194,7 +197,7 @@ export default function Appointment() {
           email: appointmentData.email,
           uid: user.uid,
         });
-
+  
         await push(ref(db, `appointments/${user.uid}`), appointmentData);
         setPopupMessage(`Dear ${userDetails.name}, your appointment booking has been successfully sent to ${appointmentData.doctor}. Please wait for approval.`);
         setShowPopup(true);
@@ -204,7 +207,7 @@ export default function Appointment() {
       }
     }
   };
-
+  
   const handleTreatmentChange = (e) => {
     const selectedTreatment = e.target.value;
     const selectedDoctors = Object.values(doctors).filter(doctor => doctor.role === selectedTreatment);

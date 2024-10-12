@@ -13,7 +13,9 @@ const Approval = () => {
   useEffect(() => { 
     const appointmentsRef = ref(db, 'appointments'); 
     onValue(appointmentsRef, (snapshot) => { 
-      setAppointments(snapshot.val()); 
+      const data = snapshot.val();
+      console.log(data); // Debugging: Check the fetched data
+      setAppointments(data); 
     }); 
   }, []); 
 
@@ -119,13 +121,15 @@ const Approval = () => {
 
       <div className="row"> 
         {filteredAppointments.length > 0 ? ( 
-          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, price, name, phone }) => ( 
+          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, price, name, phone, treatment, subCategory }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
               <div className="card shadow-sm border-light"> 
                 <div className="card-body"> 
                   <p><strong>Dates:</strong> {appointmentDate}</p> 
                   <p><strong>Time:</strong> {appointmentTime}</p> 
                   <p><strong>Doctor:</strong> {doctor}</p> 
+                  <p><strong>Treatment:</strong> {treatment}</p> 
+                  <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p> {/* Default value if missing */} 
                   <p><strong>Attendance Status:</strong> {renderAttendanceDot(attended)}</p> 
                   <p><strong>Message:</strong> {message}</p> 
                   <p><strong>Price:</strong> ${price}</p> 
@@ -161,4 +165,4 @@ const Approval = () => {
   ); 
 }; 
 
-export default Approval;
+export default Approval; 

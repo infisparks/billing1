@@ -43,13 +43,14 @@ const Dashboard = () => {
 
       <div className="row">
         {/* Create a consistent card size using Bootstrap classes */}
-        {[
+        {[ 
           { title: 'Total Users', count: usersCount, path: '/admin/users' },
           { title: 'Total Appointments', count: appointmentsCount, path: '/admin/appointments' },
           { title: 'Total Blogs', count: blogsCount, path: '/admin/blogmake' },
           { title: 'Price Graph', path: '/admin/graphprice' },
           { title: 'Total Appointments Graph', path: '/admin/graphtotal' },
           { title: 'Contact Us', path: '/admin/contact' },  // New Contact Us card
+          { title: 'Service Rank Graph', path: '/admin/bookedAppoinmentGraph' }, // New Service Rank Graph card
         ].map((card, index) => (
           <div 
             key={index}
