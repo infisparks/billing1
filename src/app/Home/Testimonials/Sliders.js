@@ -15,31 +15,31 @@ export default function Sliders() {
     {
       id: "slider1",
       img: TestimonialImg1,
-      desc: "Lorem ipsum dolor sit amet consectetur eliet adipiscing. Aliquam nec suscipit turpis, vel pretium eros.",
+      desc: "I experienced remarkable recovery through Medzeal's physiotherapy services.",
       name: "Ruhfayed Sakib",
     },
     {
       id: "slider2",
       img: TestimonialImg2,
-      desc: "Lorem ipsum dolor sit amet consectetur eliet adipiscing. Aliquam nec suscipit turpis, vel pretium eros.",
+      desc: "The personalized care I received made a huge difference in my rehabilitation.",
       name: "Shakil Hossain",
     },
     {
       id: "slider3",
       img: TestimonialImg3,
-      desc: "Lorem ipsum dolor sit amet consectetur eliet adipiscing. Aliquam nec suscipit turpis, vel pretium eros.",
+      desc: "Medzeal helped me regain my strength and confidence after my injury.",
       name: "Naimur Rahman",
     },
     {
       id: "slider4",
       img: TestimonialImg2,
-      desc: "Lorem ipsum dolor sit amet consectetur eliet adipiscing. Aliquam nec suscipit turpis, vel pretium eros.",
+      desc: "The therapists truly understand your needs and guide you every step of the way.",
       name: "Shakil Hossain",
     },
     {
       id: "slider5",
       img: TestimonialImg3,
-      desc: "Lorem ipsum dolor sit amet consectetur eliet adipiscing. Aliquam nec suscipit turpis, vel pretium eros.",
+      desc: "I can't thank Medzeal enough for their dedicated support during my recovery.",
       name: "Naimur Rahman",
     },
   ]);
