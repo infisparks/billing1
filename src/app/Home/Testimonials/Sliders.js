@@ -15,7 +15,7 @@ export default function Sliders() {
     {
       id: "slider1",
       img: TestimonialImg1,
-      desc: "I experienced remarkable recovery through Medzeal's physiotherapy services.",
+      desc: "I experienced remarkable recovery through Medzeal physiotherapy services.",
       name: "Ruhfayed Sakib",
     },
     {
