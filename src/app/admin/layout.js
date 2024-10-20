@@ -31,7 +31,7 @@ export default function Layout({ children }) {
                     // Check if user role is 'admin'
                     if (userData.role !== 'admin') {
                         // If user is not an admin, redirect to unauthorized page
-                        router.push('/unauthorized'); // Change to your unauthorized route
+                        // router.push('/unauthorized'); 
                     }
                 } else {
                     // Handle case where user data doesn't exist

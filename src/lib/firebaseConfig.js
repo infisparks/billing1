@@ -5,14 +5,13 @@ import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD7_5pY79YGSN3JcqmXR8hqYUFkGVzK6sk",
-  authDomain: "medford-dc0a9.firebaseapp.com",
-  databaseURL: "https://medford-dc0a9-default-rtdb.firebaseio.com",
-  projectId: "medford-dc0a9",
-  storageBucket: "medford-dc0a9.appspot.com",
-  messagingSenderId: "1061076293989",
-  appId: "1:1061076293989:web:b3665df46e056c0f4aa98c",
-  measurementId: "G-83S71XJJE0"
+  apiKey: "AIzaSyBbLohk17rZT8-BfXhsRvzhq9C-eAVkCWk",
+  authDomain: "medzeal-c5d31.firebaseapp.com",
+  databaseURL: "https://medzeal-c5d31-default-rtdb.firebaseio.com",
+  projectId: "medzeal-c5d31",
+  storageBucket: "medzeal-c5d31.appspot.com",
+  messagingSenderId: "222700687597",
+  appId: "1:222700687597:web:2eaa3fab44711b6a79fce4"
 };
 
 

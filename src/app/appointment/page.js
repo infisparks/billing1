@@ -122,13 +122,15 @@ export default function Appointment() {
       const snapshot = await get(doctorsRef);
       if (snapshot.exists()) {
         const allDoctors = snapshot.val();
-        setDoctors(allDoctors);
-        setFilteredDoctors(Object.values(allDoctors));
+        // Convert to an array of objects including the uid
+        setDoctors(Object.entries(allDoctors).map(([uid, data]) => ({ uid, ...data })));
+        setFilteredDoctors(Object.entries(allDoctors).map(([uid, data]) => ({ uid, ...data })));
       }
     } catch (error) {
       console.error("Error fetching doctors:", error);
     }
   };
+  
 
   const fetchDoctorById = async (uid) => {
     try {
@@ -147,29 +149,27 @@ export default function Appointment() {
       console.error("Error fetching doctor details:", error);
     }
   };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    
     const formData = new FormData(event.target);
     const treatmentPrices = {
       "Physiotherapy": 200,
       "Wellness Center": 400,
     };
-  
+    
     const currentDate = new Date();
     const formattedSubmissionDate = currentDate.toLocaleDateString("en-GB", {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     });
-  
-    // Convert to 12-hour format for submission
+    
     const time = formData.get("time");
     const [hour, minute] = time.split(":");
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const formattedSubmissionTime = `${(hour % 12 || 12)}:${minute} ${ampm}`;
-  
+    
     const appointmentData = {
       uid: auth.currentUser.uid,
       name: formData.get("name"),
@@ -177,9 +177,9 @@ export default function Appointment() {
       phone: formData.get("phone"),
       treatment: formData.get("treatment"),
       subService: formData.get("subService"),
-      doctor: formData.get("doctor"),
+      doctor: formData.get("doctor"), // This should now be the doctor's UID
       appointmentDate: formData.get("date"),
-      appointmentTime: formattedSubmissionTime, // Use the formatted time here
+      appointmentTime: formattedSubmissionTime,
       message: formData.get("message"),
       price: treatmentPrices[formData.get("treatment")],
       approved: false,
@@ -345,9 +345,9 @@ export default function Appointment() {
       Select Doctor
     </option>
     {filteredDoctors.map((doctor, index) => (
-      <option key={index} value={doctor.name}>
-        {doctor.name}
-      </option>
+     <option key={index} value={doctor.uid}> {/* Use doctor.uid as the value */}
+     {doctor.name}
+   </option>
     ))}
   </select>
 </div>

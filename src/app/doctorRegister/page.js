@@ -49,34 +49,35 @@ const DoctorRegister = () => {
       [day]: { ...prev[day], [type]: value },
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const auth = getAuth();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, password);
-      const user = userCredential.user;
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, password);
+        const user = userCredential.user;
 
-      if (photo) {
-        const photoRef = storageRef(storage, `doctors/${user.uid}/${photo.name}`);
-        await uploadBytes(photoRef, photo);
-        const photoURL = await getDownloadURL(photoRef);
+        if (photo) {
+            // Create a reference to the storage path
+            const photoRef = storageRef(storage, `doctors/${user.uid}/${photo.name}`);
+            // Upload the file directly without any compression
+            await uploadBytes(photoRef, photo);
+            const photoURL = await getDownloadURL(photoRef);
 
-        const doctorRef = ref(db, `doctors/${user.uid}`);
-        await set(doctorRef, { ...formData, workingHours, photoURL });
+            const doctorRef = ref(db, `doctors/${user.uid}`);
+            await set(doctorRef, { ...formData, workingHours, photoURL });
 
-        alert('Doctor registered successfully!');
-        resetForm();
-      }
+            alert('Doctor registered successfully!');
+            resetForm();
+        }
     } catch (error) {
-      console.error("Error registering doctor: ", error);
-      alert('There was an error registering the doctor.');
+        console.error("Error registering doctor: ", error);
+        alert('There was an error registering the doctor.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const resetForm = () => {
     setFormData({

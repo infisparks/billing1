@@ -2,9 +2,11 @@
 import React, { useEffect, useState, useMemo } from 'react'; 
 import { db } from '../../../lib/firebaseConfig'; 
 import { ref, onValue, update } from 'firebase/database'; 
+import { FaPhoneAlt, FaRegCheckCircle, FaRegTimesCircle, FaComments } from 'react-icons/fa'; // Importing icons
 
 const Approval = () => { 
   const [appointments, setAppointments] = useState(null); 
+  const [doctors, setDoctors] = useState({}); // To store doctor information
   const [selectedDate, setSelectedDate] = useState(''); 
   const [selectedMonth, setSelectedMonth] = useState(''); 
   const [selectedYear, setSelectedYear] = useState(''); 
@@ -14,8 +16,14 @@ const Approval = () => {
     const appointmentsRef = ref(db, 'appointments'); 
     onValue(appointmentsRef, (snapshot) => { 
       const data = snapshot.val();
-      console.log(data); // Debugging: Check the fetched data
       setAppointments(data); 
+    }); 
+    
+    // Fetch doctors data
+    const doctorsRef = ref(db, 'doctors'); 
+    onValue(doctorsRef, (snapshot) => { 
+      const data = snapshot.val();
+      setDoctors(data); // Store the doctor data
     }); 
   }, []); 
 
@@ -54,10 +62,27 @@ const Approval = () => {
   const renderAttendanceDot = (attended) => {
     if (attended === undefined) return <span className="badge bg-warning" title="Pending">Pending</span>;
     return attended ? (
-      <span className="badge bg-success" title="Attended">✔️ Attended</span>
+      <span className="badge bg-success" title="Attended"><FaRegCheckCircle /> Attended</span>
     ) : (
-      <span className="badge bg-danger" title="Not Attended">❌ Not Attended</span>
+      <span className="badge bg-danger" title="Not Attended"><FaRegTimesCircle /> Not Attended</span>
     );
+  };
+
+  // Update the sendFeedback function
+  const sendFeedback = (doctorUid) => {
+    // Access the doctor directly using doctorUid
+    const doctor = doctors[doctorUid];
+
+    if (doctor) {
+      const feedbackLink = `http://localhost:3000/feedback?uid=${doctorUid}`; // Use doctorUid directly for the link
+      const message = `Hi! Please provide your feedback here: ${feedbackLink}`;
+      const phoneNumber = `+${doctor.phone}`; // Ensure the number is formatted correctly
+      const whatsappLink = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+      
+      window.open(whatsappLink, '_blank'); // Open the WhatsApp link in a new tab
+    } else {
+      console.error("Doctor not found for UID:", doctorUid); // Debugging output
+    }
   };
 
   return ( 
@@ -123,27 +148,25 @@ const Approval = () => {
         {filteredAppointments.length > 0 ? ( 
           filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, price, name, phone, treatment, subCategory }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
-              <div className="card shadow-sm border-light"> 
+              <div className="card shadow-sm border-light" style={{ borderRadius: '8px' }}> 
                 <div className="card-body"> 
-                  <p><strong>Dates:</strong> {appointmentDate}</p> 
+                  <p><strong>Date:</strong> {appointmentDate}</p> 
                   <p><strong>Time:</strong> {appointmentTime}</p> 
-                  <p><strong>Doctor:</strong> {doctor}</p> 
+                  <p><strong>Doctor UID:</strong> {doctor}</p> {/* Displaying the doctor UID */}
                   <p><strong>Treatment:</strong> {treatment}</p> 
-                  <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p> {/* Default value if missing */} 
+                  <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p> 
                   <p><strong>Attendance Status:</strong> {renderAttendanceDot(attended)}</p> 
                   <p><strong>Message:</strong> {message}</p> 
                   <p><strong>Price:</strong> ${price}</p> 
                   <p><strong>Name:</strong> {name}</p> 
                   <p><strong>Phone:</strong> {phone}</p> 
-                  <a href={`tel:${phone}`} className="btn btn-info me-2"> 
-                    Call 
-                  </a> 
-                  <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-primary me-2"> 
-                    Attend 
-                  </button> 
-                  <button onClick={() => handleAttendance(id, userId, false)} className="btn btn-secondary"> 
-                    Not Attend 
-                  </button> 
+                  <div className="d-flex justify-content-between">
+                    <a href={`tel:${phone}`} className="btn btn-info me-2"><FaPhoneAlt /> Call</a> 
+                    <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-success me-2">Attend</button> 
+                    <button onClick={() => handleAttendance(id, userId, false)} className="btn btn-danger me-2">Not Attend</button>
+                    {/* Pass the doctor UID directly to sendFeedback */}
+                    <button onClick={() => sendFeedback(doctor)} className="btn btn-warning"><FaComments /> Feedback</button>
+                  </div>
                 </div> 
               </div> 
             </div> 
@@ -155,12 +178,9 @@ const Approval = () => {
         )} 
       </div> 
 
-      <style jsx>{` 
-        .hover-shadow:hover { 
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
-          transition: box-shadow 0.3s ease; 
-        } 
-      `}</style> 
+      <style jsx>{ 
+        `.hover-effect:hover { background-color: #f5f5f5; cursor: pointer; }` 
+      }</style> 
     </div> 
   ); 
 }; 
