@@ -234,6 +234,7 @@ const styles = {
   },
 };
 
+
 // Wrap the main component in a Suspense boundary
 const Feedback = () => (
   <Suspense fallback={<div>Loading...</div>}>
