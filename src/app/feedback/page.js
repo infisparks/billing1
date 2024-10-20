@@ -1,12 +1,12 @@
 "use client"; // Ensure this is a client component
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { ref, set, get } from 'firebase/database';
 import { db, auth } from '../../lib/firebaseConfig'; // Adjust the import path accordingly
 import { onAuthStateChanged } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 
-const Feedback = () => {
+const FeedbackContent = () => {
   const searchParams = useSearchParams(); // Get search params from URL
   const router = useRouter();
   const [rating, setRating] = useState(0);
@@ -233,5 +233,12 @@ const styles = {
     margin: '10px',
   },
 };
+
+// Wrap the main component in a Suspense boundary
+const Feedback = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <FeedbackContent />
+  </Suspense>
+);
 
 export default Feedback;
