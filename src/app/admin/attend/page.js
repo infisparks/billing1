@@ -74,7 +74,7 @@ const Approval = () => {
     const doctor = doctors[doctorUid];
 
     if (doctor) {
-      const feedbackLink = `http://localhost:3000/feedback?uid=${doctorUid}`; // Use doctorUid directly for the link
+      const feedbackLink = `http://medzeal.in/feedback?uid=${doctorUid}`; // Use doctorUid directly for the link
       const message = `Hi! Please provide your feedback here: ${feedbackLink}`;
       const phoneNumber = `+${doctor.phone}`; // Ensure the number is formatted correctly
       const whatsappLink = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
