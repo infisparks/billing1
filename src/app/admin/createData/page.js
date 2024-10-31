@@ -8,18 +8,6 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import Header from "@/components/Header/Header";
 import WorkHour from "@/app/appointment/WorkHour";
 
-const DateInput = ({ selectedDate, onDateChange }) => {
-  return (
-    <input
-      type="date"
-      name="date"
-      value={selectedDate}
-      onChange={onDateChange}
-      required
-    />
-  );
-};
-
 // Utility function to format time to 12-hour format
 const formatTimeTo12Hour = (time) => {
   const [hour, minute] = time.split(':');
@@ -28,10 +16,29 @@ const formatTimeTo12Hour = (time) => {
   return `${formattedHour}:${minute} ${ampm}`;
 };
 
+// Function to get current date in YYYY-MM-DD format
+const getCurrentDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Function to get current time in HH:MM format
+const getCurrentTime = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
 export default function Staff() {
   const router = useRouter();
   const auth = getAuth(app);
   const db = getDatabase(app);
+  
+  // Initialize userDetails with current date and time
   const [userDetails, setUserDetails] = useState({
     name: "",
     email: "",
@@ -39,10 +46,11 @@ export default function Staff() {
     treatment: "",
     subCategory: "",
     doctor: "",
-    appointmentDate: "",
-    appointmentTime: "",
+    appointmentDate: getCurrentDate(), // Auto-fetch current date
+    appointmentTime: getCurrentTime(), // Auto-fetch current time
     message: "",
   });
+  
   const [doctors, setDoctors] = useState([]); // State to hold doctors
 
   const subServices = {
@@ -117,8 +125,13 @@ export default function Staff() {
       alert("Appointment booked successfully!");
   
       // Construct WhatsApp message
-      const message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your 
-  details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Message: ${appointmentData.message}`;
+      let message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}`;
+      
+      // Conditionally add message if provided
+      if (appointmentData.message && appointmentData.message.trim() !== "") {
+        message += `\n- Message: ${appointmentData.message}`;
+      }
+  
       // URL encode the message
       const encodedMessage = encodeURIComponent(message);
   
@@ -171,7 +184,7 @@ export default function Staff() {
                           placeholder="Email"
                           value={userDetails.email}
                           onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
-                          required
+                          // Removed 'required' attribute
                         />
                       </div>
                     </div>
@@ -244,9 +257,12 @@ export default function Staff() {
                     </div>
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
-                        <DateInput 
-                          selectedDate={userDetails.appointmentDate} 
-                          onDateChange={(e) => setUserDetails({ ...userDetails, appointmentDate: e.target.value })}
+                        <input
+                          name="date"
+                          type="date"
+                          value={userDetails.appointmentDate}
+                          onChange={(e) => setUserDetails({ ...userDetails, appointmentDate: e.target.value })}
+                          required
                         />
                       </div>
                     </div>
@@ -269,7 +285,7 @@ export default function Staff() {
                           placeholder="Write Your Message Here....."
                           value={userDetails.message}
                           onChange={(e) => setUserDetails({ ...userDetails, message: e.target.value })}
-                          required
+                          // Removed 'required' attribute
                         ></textarea>
                       </div>
                     </div>

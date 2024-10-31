@@ -146,7 +146,7 @@ const Approval = () => {
 
       <div className="row"> 
         {filteredAppointments.length > 0 ? ( 
-          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, price, name, phone, treatment, subCategory }) => ( 
+          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, name, phone, treatment, subCategory }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
               <div className="card shadow-sm border-light" style={{ borderRadius: '8px' }}> 
                 <div className="card-body"> 
@@ -157,7 +157,7 @@ const Approval = () => {
                   <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p> 
                   <p><strong>Attendance Status:</strong> {renderAttendanceDot(attended)}</p> 
                   <p><strong>Message:</strong> {message}</p> 
-                  <p><strong>Price:</strong> ${price}</p> 
+                  {/* <p><strong>Price:</strong> ${price}</p> */} {/* Removed price display */}
                   <p><strong>Name:</strong> {name}</p> 
                   <p><strong>Phone:</strong> {phone}</p> 
                   <div className="d-flex justify-content-between">
@@ -185,4 +185,4 @@ const Approval = () => {
   ); 
 }; 
 
-export default Approval; 
+export default Approval;

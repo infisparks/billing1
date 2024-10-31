@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react'; 
 import { db } from '../../../lib/firebaseConfig'; 
 import { ref, onValue, remove, update } from 'firebase/database'; 
-import { FaCheck, FaTrash, FaWhatsapp, FaPhone, FaCalendar, FaClock, FaUser, FaEnvelope, FaDollarSign, FaSearch, FaCalendarAlt } from 'react-icons/fa'; 
+import { FaCheck, FaTrash, FaWhatsapp, FaPhone, FaCalendar, FaClock, FaUser, FaEnvelope, FaSearch, FaCalendarAlt } from 'react-icons/fa'; 
 
 const Approval = () => { 
   const [appointments, setAppointments] = useState(null); 
@@ -39,9 +39,10 @@ const Approval = () => {
     }); 
   }, [appointments, selectedDate, selectedMonth, selectedYear, searchTerm]); 
 
-  const totalPrice = useMemo(() => { 
-    return filteredAppointments.reduce((acc, { price }) => acc + price, 0); 
-  }, [filteredAppointments]); 
+  // Removed totalPrice calculation
+  // const totalPrice = useMemo(() => { 
+  //   return filteredAppointments.reduce((acc, { price }) => acc + price, 0); 
+  // }, [filteredAppointments]); 
 
   const today = new Date().toISOString().split('T')[0]; 
 
@@ -57,11 +58,11 @@ const Approval = () => {
             }
             const updatedAppointments = { ...prev };
             delete updatedAppointments[userId][appointmentId]; 
-  
+
             if (Object.keys(updatedAppointments[userId]).length === 0) {
               delete updatedAppointments[userId];
             }
-  
+
             return updatedAppointments;
           });
           alert("Appointment deleted successfully.");
@@ -72,6 +73,7 @@ const Approval = () => {
         });
     }
   };
+
   const handleApprove = async (id, uid, email, appointmentDate, appointmentTime, doctor, name) => { 
     const appointmentRef = ref(db, `appointments/${uid}/${id}`); 
 
@@ -97,7 +99,7 @@ const Approval = () => {
         console.error("Error updating approval:", error);
         alert('Error approving appointment.');
     }
-};
+  };
 
   const handleSendCustomWhatsApp = (phone, name, appointmentDate, appointmentTime, doctor) => {
     const customMessage = `Hello ${name}, your appointment on ${appointmentDate} at ${appointmentTime} with Dr. ${doctor} has been confirmed. Please let us know if you need further assistance.`;
@@ -167,11 +169,12 @@ const Approval = () => {
         Today Appointments 
       </button> 
 
-      <h2 className="h5 mb-4"><FaDollarSign /> Total Price: ${totalPrice}</h2> 
+      {/* Removed totalPrice display */}
+      {/* <h2 className="h5 mb-4"><FaDollarSign /> Total Price: ${totalPrice}</h2> */} 
 
       <div className="row"> 
         {filteredAppointments.length > 0 ? ( 
-          filteredAppointments.map(({ id, uid, appointmentDate, appointmentTime, doctor, approved, message, price, name, phone, email }) => ( 
+          filteredAppointments.map(({ id, uid, appointmentDate, appointmentTime, doctor, approved, message, name, phone, email }) => ( 
             <div key={id} className="col-md-6 mb-4"> 
               <div className="card shadow-sm border-light hover-shadow"> 
                 <div className="card-body"> 
@@ -179,15 +182,14 @@ const Approval = () => {
                   <p><strong><FaClock /> Time:</strong> {appointmentTime}</p> 
                   <p><strong><FaUser /> Doctor:</strong> {doctor}</p> 
                   <p><strong>Approved:</strong> {approved ? 'Yes' : 'No'}</p> 
-                  <p><strong><FaEnvelope /> Message:</strong> {message}</p> 
-                  <p><strong><FaDollarSign /> Price:</strong> ${price}</p> 
+                  <p><strong><FaEnvelope /> Message:</strong> {message}</p>
                   <p><strong><FaEnvelope /> Email:</strong> {email}</p> 
                   <p><strong><FaUser /> Name:</strong> {name}</p> 
                   <p><strong><FaPhone /> Phone:</strong> {phone}</p> 
                   
                   {/* Modern Button Layout */}
                   <div className="btn-group d-flex justify-content-between mt-3">
-                    <button onClick={() => handleApprove(id, uid, email, appointmentDate, appointmentTime, doctor)} className="btn btn-success btn-sm d-flex align-items-center"> 
+                    <button onClick={() => handleApprove(id, uid, email, appointmentDate, appointmentTime, doctor, name)} className="btn btn-success btn-sm d-flex align-items-center"> 
                       <FaCheck className="me-2" /> Approve 
                     </button>
                     <button onClick={() => handleDelete(uid, id)} className="btn btn-danger btn-sm d-flex align-items-center"> 
