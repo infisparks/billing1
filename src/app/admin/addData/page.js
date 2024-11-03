@@ -218,7 +218,7 @@ export default function Staff() {
                           value={userDetails.email}
                           onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
 
-                          
+
                         />
                       </div>
                     </div>
@@ -241,7 +241,7 @@ export default function Staff() {
                           className="form-select"
                           value={userDetails.treatment}
                           onChange={(e) => {
-                            setUserDetails({ ...userDetails, treatment: e.target.value, subCategory: "" }); // Reset subcategory
+                            setUserDetails({ ...userDetails, treatment : e.target.value, subCategory: "" }); // Reset subcategory
                           }}
                           required
                         >
