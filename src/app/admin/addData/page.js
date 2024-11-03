@@ -217,7 +217,7 @@ export default function Staff() {
                           placeholder="Email"
                           value={userDetails.email}
                           onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
-                          required
+                      
                         />
                       </div>
                     </div>
