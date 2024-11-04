@@ -109,6 +109,16 @@ export default function MobileOffcanvas() {
                   
                   </li>
                   <li>
+
+                  <Link
+                      className="menu-arrow"
+                      onClick={() => toggleSubMenu(3)}
+                      href="/gallery"
+                      >
+                      Gallery
+                    </Link>
+                      </li>
+                  <li>
                     <Link
                       className="menu-arrow"
                       onClick={() => toggleSubMenu(3)}

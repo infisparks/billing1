@@ -45,7 +45,12 @@ export default function Navbar() {
               </Link>
               
             </li>
-           
+            <li>
+              <Link href="/gallery">
+                Gallery
+              </Link>
+              
+            </li>
                
           
             <li>

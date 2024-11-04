@@ -70,6 +70,16 @@ const Pages = () => {
         <div className="col-md-4 mb-4">
           <div className="card text-center shadow">
             <div className="card-body">
+              <h5 className="card-title">Today Appoinment</h5>
+              <p className="card-text">today all user booked appoinemnt.</p>
+              <Link href="/admin/todayattend" className="btn btn-warning">see all user appoinemnt</Link>
+            </div>
+          </div>
+        </div>
+        
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
+            <div className="card-body">
               <h5 className="card-title">User History</h5>
               <p className="card-text">View user appointment history.</p>
               <Link href="/admin/userhistory" className="btn btn-info">User History</Link>

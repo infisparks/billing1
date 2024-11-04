@@ -20,8 +20,10 @@ const AdminPage = () => {
               <h2 className="card-title">Staff</h2>
               <button className="btn btn-primary">Manage Staff</button>
             </div>
+            
           </div>
         </div>
+       
 
         {/* Admin Button */}
         <div className="col-md-6 mb-4 d-flex">
