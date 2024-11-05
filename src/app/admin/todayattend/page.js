@@ -65,7 +65,7 @@ const TodayAttendedAppointments = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="display-4 text-center mb-4">Today's Attended Appointments</h1>
+      <h1 className="display-4 text-center mb-4">Todays Attended Appointments</h1>
 
       {appointments.length > 0 ? (
         <div className="row">
