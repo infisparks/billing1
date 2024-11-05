@@ -20,8 +20,9 @@ const Approval = () => {
   const [selectedYear, setSelectedYear] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // State to track edited prices
+  // State to track edited prices and payment methods
   const [editedPrices, setEditedPrices] = useState({});
+  const [editedPayments, setEditedPayments] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -135,6 +136,49 @@ const Approval = () => {
     }
   };
 
+  // Function to handle payment method change
+  const handlePaymentChange = (id, value) => {
+    setEditedPayments(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  // Function to save the new payment method
+  const saveNewPayment = async (id, uid) => {
+    const newPayment = editedPayments[id];
+    if (!newPayment) {
+      setError("Payment method cannot be empty.");
+      return;
+    }
+
+    if (!["Cash", "Online"].includes(newPayment)) {
+      setError("Invalid payment method selected.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const appointmentRef = ref(db, `appointments/${uid}/${id}`);
+      await update(appointmentRef, { paymentMethod: newPayment });
+      setSuccess("Payment method updated successfully.");
+      setEditedPayments(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error updating payment method:", error);
+      setError("Failed to update payment method.");
+    } finally {
+      setLoading(false);
+      setTimeout(() => setSuccess(null), 3000);
+    }
+  };
+
   // Update the sendFeedback function
   const sendFeedback = (doctorUid) => {
     const doctor = doctors[doctorUid];
@@ -229,11 +273,11 @@ const Approval = () => {
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
-          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, name, phone, treatment, subCategory, price, approved }) => (
+          filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, name, phone, treatment, subCategory, price, approved, paymentMethod }) => (
             <div key={id} className="col-md-6 mb-4">
               <div className="card shadow-sm border-light" style={{ borderRadius: '8px' }}>
                 <div className="card-body">
-                <p className='text-black'><strong>Name:</strong> {name}</p>
+                  <p className='text-black'><strong>Name:</strong> {name}</p>
                   <p><strong>Date:</strong> {appointmentDate}</p>
                   <p><strong>Time:</strong> {appointmentTime}</p>
                   <p><strong>Doctor UID:</strong> {doctor}</p>
@@ -265,6 +309,38 @@ const Approval = () => {
                         className="btn btn-secondary btn-sm"
                         title="Cancel"
                         disabled={loading && editedPrices[id] !== undefined}
+                      >
+                        <FaTimes />
+                      </button>
+                    </>
+                  </p>
+
+                  {/* Payment Method Section */}
+                  <p>
+                    <strong>Payment Method:</strong>{' '}
+                    <select
+                      value={editedPayments[id] !== undefined ? editedPayments[id] : paymentMethod || 'Cash'}
+                      onChange={(e) => handlePaymentChange(id, e.target.value)}
+                      className="form-select d-inline-block"
+                      style={{ width: '150px', marginRight: '10px' }}
+                    >
+                      <option value="Cash">Cash</option>
+                      <option value="Online">Online</option>
+                    </select>
+                    <>
+                      <button
+                        onClick={() => saveNewPayment(id, userId)}
+                        className="btn btn-success btn-sm me-2"
+                        title="Save Payment Method"
+                        disabled={loading && editedPayments[id] !== undefined}
+                      >
+                        <FaSave />
+                      </button>
+                      <button
+                        onClick={() => handlePaymentChange(id, paymentMethod || 'Cash')}
+                        className="btn btn-secondary btn-sm"
+                        title="Cancel"
+                        disabled={loading && editedPayments[id] !== undefined}
                       >
                         <FaTimes />
                       </button>
