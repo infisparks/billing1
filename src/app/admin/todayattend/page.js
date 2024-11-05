@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../lib/firebaseConfig';
 import { ref, onValue, off } from 'firebase/database';
-import { FaPhoneAlt, FaMoneyBillWave, FaCreditCard } from 'react-icons/fa';
+import { FaPhoneAlt, FaMoneyBillWave, FaCreditCard, FaUser, FaCalendarAlt, FaClock, FaStethoscope, FaSyringe, FaComments } from 'react-icons/fa';
+import { Spinner } from 'react-bootstrap';
 
 const TodayAttendedAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -54,7 +55,12 @@ const TodayAttendedAppointments = () => {
   }, []);
 
   if (loading) {
-    return <div className="container mt-5">Loading appointments...</div>;
+    return (
+      <div className="container mt-5 text-center">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3">Loading appointments...</p>
+      </div>
+    );
   }
 
   return (
@@ -78,33 +84,56 @@ const TodayAttendedAppointments = () => {
               price,
               paymentMethod,
             }) => (
-              <div key={id} className="col-md-6 mb-4">
-                <div className="card shadow-sm border-light" style={{ borderRadius: '8px' }}>
-                  <div className="card-body">
-                    <p><strong>Name:</strong> {name || 'N/A'}</p>
-                    <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p>
-                    <p><strong>Phone:</strong> {phone || 'N/A'}</p>
-                    <p><strong>Date:</strong> {appointmentDate || 'N/A'}</p>
-                    <p><strong>Time:</strong> {appointmentTime || 'N/A'}</p>
-                    <p>
+              <div key={id} className="col-lg-4 col-md-6 mb-4">
+                <div className="card shadow-sm border-light h-100 hover-effect">
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title">
+                      <FaUser className="me-2 text-primary" />
+                      {name || 'N/A'}
+                    </h5>
+                    <p className="card-text mb-1">
+                      <FaSyringe className="me-2 text-success" />
+                      <strong>Subcategory:</strong> {subCategory || 'N/A'}
+                    </p>
+                    <p className="card-text mb-1">
+                      <FaPhoneAlt className="me-2 text-warning" />
+                      <strong>Phone:</strong> {phone || 'N/A'}
+                    </p>
+                    <p className="card-text mb-1">
+                      <FaCalendarAlt className="me-2 text-secondary" />
+                      <strong>Date:</strong> {appointmentDate || 'N/A'}
+                    </p>
+                    <p className="card-text mb-1">
+                      <FaClock className="me-2 text-info" />
+                      <strong>Time:</strong> {appointmentTime || 'N/A'}
+                    </p>
+                    <p className="card-text mb-1">
+                      <FaStethoscope className="me-2 text-danger" />
                       <strong>Doctor:</strong> {doctors[doctor]?.name || doctor || 'N/A'}
                     </p>
-                    <p><strong>Treatment:</strong> {treatment || 'N/A'}</p>
-                    <p>
-                      <strong>Price:</strong> {price !== undefined && price !== null ? `RS ${price}` : 'N/A'}
+                    <p className="card-text mb-1">
+                      <FaComments className="me-2 text-muted" />
+                      <strong>Message:</strong> {message || 'N/A'}
                     </p>
-                    <p>
-                      <strong>Payment Method:</strong> {paymentMethod || 'N/A'}
-                      {' '}
-                      {paymentMethod === 'Cash' ? (
-                        <FaMoneyBillWave className="text-success" title="Cash Payment" />
-                      ) : paymentMethod === 'Online' ? (
-                        <FaCreditCard className="text-primary" title="Online Payment" />
-                      ) : null}
+                    <p className="card-text mb-3 mt-auto">
+                      <strong>Treatment:</strong> {treatment || 'N/A'}
                     </p>
-                    <p><strong>Message:</strong> {message || 'N/A'}</p>
-                    <a href={`tel:${phone}`} className="btn btn-info">
-                      <FaPhoneAlt /> Call
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="badge bg-primary">
+                        {price !== undefined && price !== null ? `RS ${price}` : 'N/A'}
+                      </span>
+                      <span>
+                        <strong>Payment:</strong> {paymentMethod || 'N/A'}{' '}
+                        {paymentMethod === 'Cash' ? (
+                          <FaMoneyBillWave className="text-success" title="Cash Payment" />
+                        ) : paymentMethod === 'Online' ? (
+                          <FaCreditCard className="text-primary" title="Online Payment" />
+                        ) : null}
+                      </span>
+                    </div>
+                    <a href={`tel:${phone}`} className="btn btn-outline-info mt-3 w-100">
+                      <FaPhoneAlt className="me-2" />
+                      Call
                     </a>
                   </div>
                 </div>
@@ -113,11 +142,30 @@ const TodayAttendedAppointments = () => {
           )}
         </div>
       ) : (
-        <p className="text-center text-muted">No attended appointments found for today.</p>
+        <div className="text-center text-muted">
+          <p>No attended appointments found for today.</p>
+        </div>
       )}
 
       <style jsx>{`
-        .hover-effect:hover { background-color: #f5f5f5; cursor: pointer; }
+        .hover-effect:hover {
+          transform: translateY(-5px);
+          transition: transform 0.3s;
+          cursor: pointer;
+        }
+        .card-title {
+          display: flex;
+          align-items: center;
+          font-size: 1.25rem;
+        }
+        .card-text {
+          display: flex;
+          align-items: center;
+          font-size: 0.95rem;
+        }
+        .badge {
+          font-size: 1rem;
+        }
       `}</style>
     </div>
   );

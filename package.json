@@ -34,6 +34,7 @@
     "react-spinners": "^0.14.1",
     "react-tabs": "^6.0.2",
     "react-tilt": "^1.0.2",
+    "react-toastify": "^10.0.6",
     "sharp": "^0.33.2",
     "swiper": "^11.0.6",
     "xlsx": "^0.18.5"
