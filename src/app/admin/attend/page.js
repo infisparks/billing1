@@ -303,7 +303,7 @@ const Approval = () => {
                   <p><strong>Message:</strong> {message}</p>
                   <p><strong>Phone:</strong> {phone}</p>
                   <div className="d-flex justify-content-between mt-4">
-                    <a href={`tel:${phone}`} className="btn btn-outline-primary flex-fill me-2 shadow-sm">
+                    <a href={`tel:${phone}`} className="btn  flex-fill me-2 shadow-sm">
                       <FaPhoneAlt className="me-2" /> Call
                     </a>
                     <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-success flex-fill me-2 shadow-sm">
