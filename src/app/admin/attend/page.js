@@ -6,11 +6,8 @@ import {
   FaPhoneAlt, 
   FaRegCheckCircle, 
   FaRegTimesCircle, 
-  FaComments, 
-  FaSave, 
-  FaTimes 
+  FaComments
 } from 'react-icons/fa';
-
 
 const Approval = () => {
   const [appointments, setAppointments] = useState(null);
@@ -66,13 +63,61 @@ const Approval = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const handleAttendance = (id, uid, status) => {
+  // Updated handleAttendance function
+  const handleAttendance = async (id, uid, status) => {
     const appointmentRef = ref(db, `appointments/${uid}/${id}`);
-    update(appointmentRef, { attended: status })
-      .catch((error) => {
-        console.error("Error updating attendance:", error);
-        setError("Failed to update attendance.");
+
+    const newPrice = editedPrices[id] !== undefined ? editedPrices[id] : appointments[uid][id].price || '';
+    const newPaymentMethod = editedPayments[id] !== undefined ? editedPayments[id] : appointments[uid][id].paymentMethod || 'Cash';
+
+    // Validate price and payment method when marking as attended
+    if (status === true) {
+      if (newPrice === undefined || newPrice === '') {
+        setError("Price cannot be empty.");
+        return;
+      }
+
+      const priceNumber = parseFloat(newPrice);
+      if (isNaN(priceNumber) || priceNumber < 0) {
+        setError("Please enter a valid positive number for the price.");
+        return;
+      }
+
+      if (!["Cash", "Online"].includes(newPaymentMethod)) {
+        setError("Invalid payment method selected.");
+        return;
+      }
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const updates = { attended: status };
+      if (status === true) {
+        updates.price = parseFloat(newPrice);
+        updates.paymentMethod = newPaymentMethod;
+      }
+      await update(appointmentRef, updates);
+      setSuccess("Appointment updated successfully.");
+      setEditedPrices(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
       });
+      setEditedPayments(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      setError("Failed to update appointment.");
+    } finally {
+      setLoading(false);
+      setTimeout(() => setSuccess(null), 3000);
+    }
   };
 
   const renderAttendanceStatus = (attended) => {
@@ -100,83 +145,12 @@ const Approval = () => {
     }));
   };
 
-  // Function to save the new price
-  const saveNewPrice = async (id, uid) => {
-    const newPrice = editedPrices[id];
-    if (newPrice === undefined || newPrice === '') {
-      setError("Price cannot be empty.");
-      return;
-    }
-
-    const priceNumber = parseFloat(newPrice);
-    if (isNaN(priceNumber) || priceNumber < 0) {
-      setError("Please enter a valid positive number for the price.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const appointmentRef = ref(db, `appointments/${uid}/${id}`);
-      await update(appointmentRef, { price: priceNumber });
-      setSuccess("Price updated successfully.");
-      setEditedPrices(prev => {
-        const updated = { ...prev };
-        delete updated[id];
-        return updated;
-      });
-    } catch (error) {
-      console.error("Error updating price:", error);
-      setError("Failed to update price.");
-    } finally {
-      setLoading(false);
-      setTimeout(() => setSuccess(null), 3000);
-    }
-  };
-
   // Function to handle payment method change
   const handlePaymentChange = (id, value) => {
     setEditedPayments(prev => ({
       ...prev,
       [id]: value
     }));
-  };
-
-  // Function to save the new payment method
-  const saveNewPayment = async (id, uid) => {
-    const newPayment = editedPayments[id];
-    if (!newPayment) {
-      setError("Payment method cannot be empty.");
-      return;
-    }
-
-    if (!["Cash", "Online"].includes(newPayment)) {
-      setError("Invalid payment method selected.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const appointmentRef = ref(db, `appointments/${uid}/${id}`);
-      await update(appointmentRef, { paymentMethod: newPayment });
-      setSuccess("Payment method updated successfully.");
-      setEditedPayments(prev => {
-        const updated = { ...prev };
-        delete updated[id];
-        return updated;
-      });
-    } catch (error) {
-      console.error("Error updating payment method:", error);
-      setError("Failed to update payment method.");
-    } finally {
-      setLoading(false);
-      setTimeout(() => setSuccess(null), 3000);
-    }
   };
 
   // Update the sendFeedback function
@@ -220,26 +194,26 @@ const Approval = () => {
           placeholder="Search by doctor, message, name, or phone"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-control"
+          className="form-control form-control-lg shadow-sm"
         />
       </div>
 
       <div className="mb-4 row">
         <div className="col-md-4 mb-3">
-          <label className="form-label">Select Date:</label>
+          <label className="form-label fw-bold">Select Date:</label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="form-control"
+            className="form-control shadow-sm"
           />
         </div>
         <div className="col-md-4 mb-3">
-          <label className="form-label">Select Month:</label>
+          <label className="form-label fw-bold">Select Month:</label>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="form-select"
+            className="form-select shadow-sm"
           >
             <option value="">All Months</option>
             {Array.from({ length: 12 }, (_, i) => (
@@ -250,11 +224,11 @@ const Approval = () => {
           </select>
         </div>
         <div className="col-md-4 mb-3">
-          <label className="form-label">Select Year:</label>
+          <label className="form-label fw-bold">Select Year:</label>
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="form-select"
+            className="form-select shadow-sm"
           >
             <option value="">All Years</option>
             {Array.from({ length: 10 }, (_, i) => (
@@ -266,86 +240,60 @@ const Approval = () => {
 
       <button
         onClick={() => setSelectedDate(today)}
-        className="btn btn-primary mb-4"
+        className="btn btn-primary mb-4 shadow"
       >
-        Today Appointments
+        Today's Appointments
       </button>
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
           filteredAppointments.map(({ id, userId, appointmentDate, appointmentTime, doctor, attended, message, name, phone, treatment, subCategory, price, approved, paymentMethod }) => (
             <div key={id} className="col-md-6 mb-4">
-              <div className="card shadow-sm border-light" style={{ borderRadius: '8px' }}>
-                <div className="card-body">
-                  <p className='text-black'><strong>Name:</strong> {name}</p>
-                  <p><strong>Date:</strong> {appointmentDate}</p>
-                  <p><strong>Time:</strong> {appointmentTime}</p>
-                  <p><strong>Doctor UID:</strong> {doctor}</p>
-                  <p><strong>Treatment:</strong> {treatment}</p>
-                  <p><strong>Subcategory:</strong> {subCategory || 'N/A'}</p>
+              <div className="card shadow border-0" style={{ borderRadius: '12px' }}>
+                <div className="card-body p-4">
+                  <h5 className="card-title mb-3">{name}</h5>
+                  <ul className="list-group list-group-flush mb-3">
+                    <li className="list-group-item px-0 d-flex justify-content-between">
+                      <span className="fw-bold">Date:</span> {appointmentDate}
+                    </li>
+                    <li className="list-group-item px-0 d-flex justify-content-between">
+                      <span className="fw-bold">Time:</span> {appointmentTime}
+                    </li>
+                    <li className="list-group-item px-0 d-flex justify-content-between">
+                      <span className="fw-bold">Doctor UID:</span> {doctor}
+                    </li>
+                    <li className="list-group-item px-0 d-flex justify-content-between">
+                      <span className="fw-bold">Treatment:</span> {treatment}
+                    </li>
+                    <li className="list-group-item px-0 d-flex justify-content-between">
+                      <span className="fw-bold">Subcategory:</span> {subCategory || 'N/A'}
+                    </li>
+                  </ul>
                   
                   {/* Price Section */}
-                  <p>
-                    <strong>Price:</strong>{' '}
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Price:</label>
                     <input
                       type="number"
                       value={editedPrices[id] !== undefined ? editedPrices[id] : price || ''}
                       onChange={(e) => handlePriceChange(id, e.target.value)}
-                      className="form-control d-inline-block"
-                      style={{ width: '100px', marginRight: '10px' }}
+                      className="form-control shadow-sm"
                       min="0"
                     />
-                    <>
-                      <button
-                        onClick={() => saveNewPrice(id, userId)}
-                        className="btn btn-success btn-sm me-2"
-                        title="Save Price"
-                        disabled={loading && editedPrices[id] !== undefined}
-                      >
-                        <FaSave />
-                      </button>
-                      <button
-                        onClick={() => handlePriceChange(id, price || '')}
-                        className="btn btn-secondary btn-sm"
-                        title="Cancel"
-                        disabled={loading && editedPrices[id] !== undefined}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  </p>
+                  </div>
 
                   {/* Payment Method Section */}
-                  <p>
-                    <strong>Payment Method:</strong>{' '}
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Payment Method:</label>
                     <select
                       value={editedPayments[id] !== undefined ? editedPayments[id] : paymentMethod || 'Cash'}
                       onChange={(e) => handlePaymentChange(id, e.target.value)}
-                      className="form-select d-inline-block"
-                      style={{ width: '150px', marginRight: '10px' }}
+                      className="form-select shadow-sm"
                     >
                       <option value="Cash">Cash</option>
                       <option value="Online">Online</option>
                     </select>
-                    <>
-                      <button
-                        onClick={() => saveNewPayment(id, userId)}
-                        className="btn btn-success btn-sm me-2"
-                        title="Save Payment Method"
-                        disabled={loading && editedPayments[id] !== undefined}
-                      >
-                        <FaSave />
-                      </button>
-                      <button
-                        onClick={() => handlePaymentChange(id, paymentMethod || 'Cash')}
-                        className="btn btn-secondary btn-sm"
-                        title="Cancel"
-                        disabled={loading && editedPayments[id] !== undefined}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  </p>
+                  </div>
 
                   <p><strong>Attendance Status:</strong> {renderAttendanceStatus(attended)}</p>
                   {approved && (
@@ -354,19 +302,18 @@ const Approval = () => {
                   
                   <p><strong>Message:</strong> {message}</p>
                   <p><strong>Phone:</strong> {phone}</p>
-                  <div className="d-flex justify-content-between">
-                    <a href={`tel:${phone}`} className="btn btn-info me-2">
-                      <FaPhoneAlt /> Call
+                  <div className="d-flex justify-content-between mt-4">
+                    <a href={`tel:${phone}`} className="btn btn-outline-primary flex-fill me-2 shadow-sm">
+                      <FaPhoneAlt className="me-2" /> Call
                     </a>
-                    <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-success me-2">
-                      Attend
+                    <button onClick={() => handleAttendance(id, userId, true)} className="btn btn-success flex-fill me-2 shadow-sm">
+                      <FaRegCheckCircle className="me-2" /> Attend
                     </button>
-                    <button onClick={() => handleAttendance(id, userId, false)} className="btn btn-danger me-2">
-                      Not Attend
+                    <button onClick={() => handleAttendance(id, userId, false)} className="btn btn-danger flex-fill me-2 shadow-sm">
+                      <FaRegTimesCircle className="me-2" /> Not Attend
                     </button>
-                    {/* Pass the doctor UID directly to sendFeedback */}
-                    <button onClick={() => sendFeedback(doctor)} className="btn btn-warning">
-                      <FaComments /> Feedback
+                    <button onClick={() => sendFeedback(doctor)} className="btn btn-warning flex-fill shadow-sm">
+                      <FaComments className="me-2" /> Feedback
                     </button>
                   </div>
                 </div>
@@ -381,7 +328,48 @@ const Approval = () => {
       </div>
 
       <style jsx>{`
-        .hover-effect:hover { background-color: #f5f5f5; cursor: pointer; }
+        .card {
+          background-color: #ffffff;
+        }
+        .card-title {
+          color: #333333;
+          font-weight: 600;
+        }
+        .list-group-item {
+          border: none;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .form-control, .form-select {
+          border-radius: 8px;
+        }
+        .btn {
+          border-radius: 8px;
+        }
+        .btn-primary {
+          background-color: #007bff;
+          border-color: #007bff;
+        }
+        .btn-success {
+          background-color: #28a745;
+          border-color: #28a745;
+        }
+        .btn-danger {
+          background-color: #dc3545;
+          border-color: #dc3545;
+        }
+        .btn-warning {
+          background-color: #ffc107;
+          border-color: #ffc107;
+        }
+        .btn-outline-primary {
+          color: #007bff;
+          border-color: #007bff;
+        }
+        .btn-outline-primary:hover {
+          background-color: #007bff;
+          color: #fff;
+        }
       `}</style>
     </div>
   );
