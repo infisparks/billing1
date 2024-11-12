@@ -66,6 +66,7 @@ export default function Appointment() {
       "De-addiction Programs",
       "Hijama Therapy",
       "Chiropractic Services",
+      "Dermatologist"
     ],
   };
 
