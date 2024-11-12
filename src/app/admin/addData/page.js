@@ -62,6 +62,7 @@ export default function Staff() {
       "De-addiction Programs",
       "Hijama Therapy",
       "Chiropractic Services",
+      "Dermatologist"
     ],
   };
 
