@@ -242,7 +242,7 @@ const Approval = () => {
         onClick={() => setSelectedDate(today)}
         className="btn btn-primary mb-4 shadow"
       >
-        Today's Appointments
+        Today Appointments
       </button>
 
       <div className="row">
