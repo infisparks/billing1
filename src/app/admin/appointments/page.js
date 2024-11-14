@@ -17,13 +17,15 @@ const AppointmentsPage = () => {
     onValue(appointmentsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const attendedAppointments = Object.entries(data).flatMap(([key, appointment]) => 
-          Object.entries(appointment).map(([id, details]) => ({ ...details, id }))
-        ).filter(({ approved, attended }) => approved && attended); 
+        const attendedAppointments = Object.entries(data)
+          .flatMap(([key, appointment]) =>
+            Object.entries(appointment).map(([id, details]) => ({ ...details, id }))
+          )
+          .filter(({ approved, attended }) => approved && attended);
 
         setAppointments(attendedAppointments);
       } else {
-        setAppointments([]); 
+        setAppointments([]);
       }
     });
   }, []);
@@ -31,38 +33,51 @@ const AppointmentsPage = () => {
   const filteredAppointments = useMemo(() => {
     if (!appointments) return [];
 
-    
-    return appointments.filter(({ appointmentDate, doctor, message, name, phone }) => {
-      const isDateMatch = selectedDate ? appointmentDate === selectedDate : true;
-      const isMonthMatch = selectedMonth ? appointmentDate.split('-')[1] === selectedMonth : true;
-      const isYearMatch = selectedYear ? appointmentDate.split('-')[0] === selectedYear : true;
-      const isSearchMatch = 
-        doctor.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        phone.includes(searchTerm);
+    return appointments.filter(
+      ({ appointmentDate, doctor, message, name, phone }) => {
+        const isDateMatch = selectedDate ? appointmentDate === selectedDate : true;
+        const isMonthMatch = selectedMonth
+          ? appointmentDate.split('-')[1] === selectedMonth
+          : true;
+        const isYearMatch = selectedYear
+          ? appointmentDate.split('-')[0] === selectedYear
+          : true;
+        const isSearchMatch =
+          doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          phone.includes(searchTerm);
 
-      return isDateMatch && isMonthMatch && isYearMatch && isSearchMatch;
-    });
+        return isDateMatch && isMonthMatch && isYearMatch && isSearchMatch;
+      }
+    );
   }, [appointments, selectedDate, selectedMonth, selectedYear, searchTerm]);
 
   const totalPrice = useMemo(() => {
-    return filteredAppointments.reduce((acc, { price }) => acc + price, 0);
+    return filteredAppointments.reduce((acc, { price }) => {
+      const numericPrice = parseFloat(price);
+      if (isNaN(numericPrice) || numericPrice <= 0) {
+        return acc; // Skip if price is not a valid number or zero/negative
+      }
+      return acc + numericPrice;
+    }, 0);
   }, [filteredAppointments]);
 
   const today = new Date().toISOString().split('T')[0];
 
   // Function to handle export to Excel
   const handleExport = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredAppointments.map(appointment => ({
-      'Date': appointment.appointmentDate,
-      'Time': appointment.appointmentTime,
-      'Doctor': appointment.doctor,
-      'Message': appointment.message,
-      'Price': appointment.price,
-      'Name': appointment.name,
-      'Phone': appointment.phone,
-    })));
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredAppointments.map((appointment) => ({
+        Date: appointment.appointmentDate,
+        Time: appointment.appointmentTime,
+        Doctor: appointment.doctor,
+        Message: appointment.message,
+        Price: appointment.price,
+        Name: appointment.name,
+        Phone: appointment.phone,
+      }))
+    );
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments');
@@ -77,9 +92,9 @@ const AppointmentsPage = () => {
 
       {/* Search Input */}
       <div className="mb-4">
-        <input 
-          type="text" 
-          placeholder="Search by doctor, message, name, or phone" 
+        <input
+          type="text"
+          placeholder="Search by doctor, message, name, or phone"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="form-control"
@@ -90,54 +105,52 @@ const AppointmentsPage = () => {
       <div className="mb-4 row">
         <div className="col-md-4 mb-3">
           <label className="form-label">Select Date:</label>
-          <input 
-            type="date" 
-            value={selectedDate} 
-            onChange={(e) => setSelectedDate(e.target.value)} 
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
             className="form-control"
           />
         </div>
         <div className="col-md-4 mb-3">
           <label className="form-label">Select Month:</label>
-          <select 
-            value={selectedMonth} 
-            onChange={(e) => setSelectedMonth(e.target.value)} 
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
             className="form-select"
           >
             <option value="">All Months</option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={String(i + 1).padStart(2, '0')}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+              <option key={i} value={String(i + 1).padStart(2, '0')}>
+                {new Date(0, i).toLocaleString('default', { month: 'long' })}
+              </option>
             ))}
           </select>
         </div>
         <div className="col-md-4 mb-3">
           <label className="form-label">Select Year:</label>
-          <select 
-            value={selectedYear} 
-            onChange={(e) => setSelectedYear(e.target.value)} 
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
             className="form-select"
           >
             <option value="">All Years</option>
             {Array.from({ length: 10 }, (_, i) => (
-              <option key={i} value={2024 - i}>{2024 - i}</option>
+              <option key={i} value={2024 - i}>
+                {2024 - i}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
       {/* Today's Appointments Button */}
-      <button 
-        onClick={() => setSelectedDate(today)} 
-        className="btn btn-primary mb-4"
-      >
+      <button onClick={() => setSelectedDate(today)} className="btn btn-primary mb-4">
         Today Appointments
       </button>
 
       {/* Export to Excel Button */}
-      <button 
-        onClick={handleExport} 
-        className="btn btn-success mb-4 float-end"
-      >
+      <button onClick={handleExport} className="btn btn-success mb-4 float-end">
         Export to Excel
       </button>
 
@@ -146,24 +159,51 @@ const AppointmentsPage = () => {
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
-          filteredAppointments.map(({ id, appointmentDate, appointmentTime, doctor, message, price, name, phone }) => (
-            <div key={id} className="col-md-6 mb-4">
-              <div className="card shadow-sm border-light hover-shadow">
-                <div className="card-body">
-                  <p><strong>Date:</strong> {appointmentDate}</p>
-                  <p><strong>Time:</strong> {appointmentTime}</p>
-                  <p><strong>Doctor:</strong> {doctor}</p>
-                  <p><strong>Message:</strong> {message}</p>
-                  <p><strong>Price:</strong> ₹{price}</p>
-                  <p><strong>Name:</strong> {name}</p>
-                  <p><strong>Phone:</strong> {phone}</p>
+          filteredAppointments.map(
+            ({
+              id,
+              appointmentDate,
+              appointmentTime,
+              doctor,
+              message,
+              price,
+              name,
+              phone,
+            }) => (
+              <div key={id} className="col-md-6 mb-4">
+                <div className="card shadow-sm border-light hover-shadow">
+                  <div className="card-body">
+                    <p>
+                      <strong>Date:</strong> {appointmentDate}
+                    </p>
+                    <p>
+                      <strong>Time:</strong> {appointmentTime}
+                    </p>
+                    <p>
+                      <strong>Doctor:</strong> {doctor}
+                    </p>
+                    <p>
+                      <strong>Message:</strong> {message}
+                    </p>
+                    <p>
+                      <strong>Price:</strong> ₹{price}
+                    </p>
+                    <p>
+                      <strong>Name:</strong> {name}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {phone}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            )
+          )
         ) : (
           <div className="col-12">
-            <p className="text-center text-muted">No appointments found for the selected criteria.</p>
+            <p className="text-center text-muted">
+              No appointments found for the selected criteria.
+            </p>
           </div>
         )}
       </div>
