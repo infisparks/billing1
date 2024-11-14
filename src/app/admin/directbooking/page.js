@@ -117,12 +117,12 @@ export default function Staff() {
       appointmentDate: formData.get("date"),
       appointmentTime: formatTimeTo12Hour(formData.get("time")), // Format time here
       message: formData.get("message"),
-      price: treatmentPrices[formData.get("treatment")],
+  
       approved: true,
       attended:true,
       uid: "test", // Add the uid field here
       paymentMethod: formData.get("paymentMethod"),
-      amountPaid: formData.get("amountPaid"),
+      price: formData.get("amountPaid"),
     };
 
     try {
