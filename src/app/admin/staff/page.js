@@ -41,8 +41,8 @@ const Pages = () => {
           <div className="card text-center shadow">
             <div className="card-body">
               <h5 className="card-title">Book Appointment</h5>
-              <p className="card-text">Book an existing appointment for a user.</p>
-              <Link href="/admin/addData" className="btn btn-secondary">Book Appointment</Link>
+              <p className="card-text">Book Appoinemnt fully with payment.</p>
+              <Link href="/admin/directbooking" className="btn btn-secondary">Book Appointment</Link>
             </div>
           </div>
         </div>
