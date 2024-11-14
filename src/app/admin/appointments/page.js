@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo } from 'react';
-import { db } from '../../../lib/firebaseConfig'; 
-import { ref, onValue } from 'firebase/database';
+import { db } from '../../../lib/firebaseConfig';
+import { ref, onValue, update, remove } from 'firebase/database';
 import * as XLSX from 'xlsx';
 
 const AppointmentsPage = () => {
@@ -10,6 +10,7 @@ const AppointmentsPage = () => {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingAppointment, setEditingAppointment] = useState(null);
 
   useEffect(() => {
     const appointmentsRef = ref(db, 'appointments');
@@ -18,8 +19,12 @@ const AppointmentsPage = () => {
       const data = snapshot.val();
       if (data) {
         const attendedAppointments = Object.entries(data)
-          .flatMap(([key, appointment]) =>
-            Object.entries(appointment).map(([id, details]) => ({ ...details, id }))
+          .flatMap(([key, appointmentGroup]) =>
+            Object.entries(appointmentGroup).map(([id, details]) => ({
+              ...details,
+              id,
+              key,
+            }))
           )
           .filter(({ approved, attended }) => approved && attended);
 
@@ -84,6 +89,47 @@ const AppointmentsPage = () => {
 
     // Generate buffer
     XLSX.writeFile(workbook, 'appointments.xlsx');
+  };
+
+  // Function to handle delete
+  const handleDelete = (key, id) => {
+    const appointmentRef = ref(db, `appointments/${key}/${id}`);
+    remove(appointmentRef)
+      .then(() => {
+        console.log('Appointment deleted successfully');
+      })
+      .catch((error) => {
+        console.error('Error deleting appointment:', error);
+      });
+  };
+
+  // Function to handle edit
+  const handleEdit = (appointment) => {
+    setEditingAppointment(appointment);
+  };
+
+  // Function to handle form changes
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditingAppointment((prevAppointment) => ({
+      ...prevAppointment,
+      [name]: value,
+    }));
+  };
+
+  // Function to update appointment
+  const handleUpdateAppointment = (e) => {
+    e.preventDefault();
+    const { key, id, ...updatedData } = editingAppointment;
+    const appointmentRef = ref(db, `appointments/${key}/${id}`);
+    update(appointmentRef, updatedData)
+      .then(() => {
+        console.log('Appointment updated successfully');
+        setEditingAppointment(null);
+      })
+      .catch((error) => {
+        console.error('Error updating appointment:', error);
+      });
   };
 
   return (
@@ -159,46 +205,48 @@ const AppointmentsPage = () => {
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
-          filteredAppointments.map(
-            ({
-              id,
-              appointmentDate,
-              appointmentTime,
-              doctor,
-              message,
-              price,
-              name,
-              phone,
-            }) => (
-              <div key={id} className="col-md-6 mb-4">
-                <div className="card shadow-sm border-light hover-shadow">
-                  <div className="card-body">
-                    <p>
-                      <strong>Date:</strong> {appointmentDate}
-                    </p>
-                    <p>
-                      <strong>Time:</strong> {appointmentTime}
-                    </p>
-                    <p>
-                      <strong>Doctor:</strong> {doctor}
-                    </p>
-                    <p>
-                      <strong>Message:</strong> {message}
-                    </p>
-                    <p>
-                      <strong>Price:</strong> ₹{price}
-                    </p>
-                    <p>
-                      <strong>Name:</strong> {name}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong> {phone}
-                    </p>
-                  </div>
+          filteredAppointments.map((appointment) => (
+            <div key={appointment.id} className="col-md-6 mb-4">
+              <div className="card shadow-sm border-light hover-shadow">
+                <div className="card-body">
+                  <p>
+                    <strong>Date:</strong> {appointment.appointmentDate}
+                  </p>
+                  <p>
+                    <strong>Time:</strong> {appointment.appointmentTime}
+                  </p>
+                  <p>
+                    <strong>Doctor:</strong> {appointment.doctor}
+                  </p>
+                  <p>
+                    <strong>Message:</strong> {appointment.message}
+                  </p>
+                  <p>
+                    <strong>Price:</strong> ₹{appointment.price}
+                  </p>
+                  <p>
+                    <strong>Name:</strong> {appointment.name}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {appointment.phone}
+                  </p>
+                  {/* Edit and Delete Buttons */}
+                  <button
+                    onClick={() => handleEdit(appointment)}
+                    className="btn btn-primary me-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(appointment.key, appointment.id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            )
-          )
+            </div>
+          ))
         ) : (
           <div className="col-12">
             <p className="text-center text-muted">
@@ -208,11 +256,125 @@ const AppointmentsPage = () => {
         )}
       </div>
 
-      {/* Custom CSS for hover effect */}
+      {/* Edit Appointment Modal */}
+      {editingAppointment && (
+        <div className="modal">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <h2>Edit Appointment</h2>
+              <form onSubmit={handleUpdateAppointment}>
+                <div className="mb-3">
+                  <label className="form-label">Date:</label>
+                  <input
+                    type="date"
+                    name="appointmentDate"
+                    value={editingAppointment.appointmentDate}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Time:</label>
+                  <input
+                    type="time"
+                    name="appointmentTime"
+                    value={editingAppointment.appointmentTime}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Doctor:</label>
+                  <input
+                    type="text"
+                    name="doctor"
+                    value={editingAppointment.doctor}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Message:</label>
+                  <textarea
+                    name="message"
+                    value={editingAppointment.message}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  ></textarea>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Price:</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={editingAppointment.price}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editingAppointment.name}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Phone:</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={editingAppointment.phone}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary me-2">
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingAppointment(null)}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom CSS for hover effect and modal */}
       <style jsx>{`
         .hover-shadow:hover {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
           transition: box-shadow 0.3s ease;
+        }
+        /* Modal styles */
+        .modal {
+          display: block;
+          position: fixed;
+          z-index: 1050;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-dialog {
+          position: relative;
+          margin: 10% auto;
+          max-width: 500px;
+        }
+        .modal-content {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 5px;
         }
       `}</style>
     </div>
