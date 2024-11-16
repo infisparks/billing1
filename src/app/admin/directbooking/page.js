@@ -131,7 +131,7 @@ export default function Staff() {
       alert("Appointment booked successfully!");
 
       // Construct WhatsApp message
-      let message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Payment Method: ${appointmentData.paymentMethod}\n- Amount Paid: ${appointmentData.amountPaid}`;
+      let message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Payment Method: ${appointmentData.paymentMethod}\n- Amount Paid: ${appointmentData.price}`;
 
       // Conditionally add message if provided
       if (appointmentData.message && appointmentData.message.trim() !== "") {
