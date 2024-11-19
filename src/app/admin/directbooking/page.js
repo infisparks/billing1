@@ -8,15 +8,13 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import Header from "@/components/Header/Header";
 import WorkHour from "@/app/appointment/WorkHour";
 
-// Utility function to format time to 12-hour format
 const formatTimeTo12Hour = (time) => {
   const [hour, minute] = time.split(":");
   const ampm = hour >= 12 ? "PM" : "AM";
-  const formattedHour = hour % 12 || 12; // Convert to 12-hour format
+  const formattedHour = hour % 12 || 12;
   return `${formattedHour}:${minute} ${ampm}`;
 };
 
-// Function to get current date in YYYY-MM-DD format
 const getCurrentDate = () => {
   const now = new Date();
   const year = now.getFullYear();
@@ -25,7 +23,6 @@ const getCurrentDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-// Function to get current time in HH:MM format
 const getCurrentTime = () => {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, "0");
@@ -38,22 +35,23 @@ export default function Staff() {
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  // Initialize userDetails with current date and time
-  const [userDetails, setUserDetails] = useState({
+  const initialUserDetails = {
     name: "",
     email: "",
     phone: "",
     treatment: "",
     subCategory: "",
     doctor: "",
-    appointmentDate: getCurrentDate(), // Auto-fetch current date
-    appointmentTime: getCurrentTime(), // Auto-fetch current time
+    appointmentDate: getCurrentDate(),
+    appointmentTime: getCurrentTime(),
     message: "",
     paymentMethod: "",
     amountPaid: "",
-  });
+  };
 
-  const [doctors, setDoctors] = useState([]); // State to hold doctors
+  const [userDetails, setUserDetails] = useState(initialUserDetails);
+  const [doctors, setDoctors] = useState([]);
+  const [emailError, setEmailError] = useState("");
 
   const subServices = {
     Physiotherapy: [
@@ -82,31 +80,49 @@ export default function Staff() {
   };
 
   useEffect(() => {
-    fetchDoctors(); // Fetch doctors on component mount
+    fetchDoctors();
   }, []);
 
   const fetchDoctors = async () => {
     try {
-      const doctorsRef = ref(db, "doctors"); // Ensure this path matches your Firebase structure
+      const doctorsRef = ref(db, "doctors");
       const snapshot = await get(doctorsRef);
       if (snapshot.exists()) {
         const doctorsData = snapshot.val();
-        setDoctors(Object.values(doctorsData)); // Set the state with the doctors' data
+        setDoctors(Object.values(doctorsData));
       }
     } catch (error) {
       console.error("Error fetching doctors:", error);
     }
   };
 
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setUserDetails({ ...userDetails, email });
+
+    if (email.trim() === "") {
+      setEmailError("");
+      return;
+    }
+
+    // Simple email regex for validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+    } else {
+      setEmailError("");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const treatmentPrices = {
-      Physiotherapy: 200,
-      "Wellness Center": 400,
-    };
+    if (emailError) {
+      alert("Please fix the errors in the form before submitting.");
+      return;
+    }
 
+    const formData = new FormData(event.target);
     const appointmentData = {
       name: formData.get("name"),
       email: formData.get("email"),
@@ -115,43 +131,59 @@ export default function Staff() {
       subCategory: formData.get("subCategory"),
       doctor: formData.get("doctor"),
       appointmentDate: formData.get("date"),
-      appointmentTime: formatTimeTo12Hour(formData.get("time")), // Format time here
+      appointmentTime: formatTimeTo12Hour(formData.get("time")),
       message: formData.get("message"),
-  
       approved: true,
-      attended:true,
-      uid: "test", // Add the uid field here
+      attended: true,
+      uid: "test",
       paymentMethod: formData.get("paymentMethod"),
       price: formData.get("amountPaid"),
     };
 
     try {
-      const newAppointmentRef = push(ref(db, `appointments/test`)); // Create a unique reference for the appointment
+      const newAppointmentRef = push(ref(db, `appointments/test`));
       await set(newAppointmentRef, appointmentData);
       alert("Appointment booked successfully!");
 
-      // Construct WhatsApp message
       let message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Payment Method: ${appointmentData.paymentMethod}\n- Amount Paid: ${appointmentData.price}`;
 
-      // Conditionally add message if provided
       if (appointmentData.message && appointmentData.message.trim() !== "") {
         message += `\n- Message: ${appointmentData.message}`;
       }
 
-      // URL encode the message
-      const encodedMessage = encodeURIComponent(message);
+      if (appointmentData.email && appointmentData.email.trim() !== "") {
+        message += `\n- Email: ${appointmentData.email}`;
+      }
 
-      // Create WhatsApp link
-      const whatsappNumber = appointmentData.phone; // Use the phone number provided by the user
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappNumber = appointmentData.phone;
       const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
-      // Open WhatsApp link in a new tab
       window.open(whatsappLink, "_blank");
 
+      setUserDetails(initialUserDetails);
     } catch (error) {
       console.error("Error during appointment booking:", error);
       alert("Failed to book appointment. Please try again.");
     }
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 15px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+    transition: "border-color 0.3s, box-shadow 0.3s",
+  };
+
+  const selectStyle = {
+    ...inputStyle,
+    appearance: "none",
+    backgroundImage: "url('/icons/select-arrow.svg')", // Optional: Add a custom arrow icon
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "right 15px center",
+    backgroundSize: "12px",
   };
 
   return (
@@ -159,64 +191,194 @@ export default function Staff() {
       <Header />
       <Breadcrumbs title="Get Your Appointment" menuText=" Appointment" />
 
-      <section className="appointment single-page">
+      <section
+        className="appointment single-page"
+        style={{ padding: "60px 0", backgroundColor: "#f9f9f9" }}
+      >
         <div className="container">
           <div className="row">
+            {/* Form Section */}
             <div className="col-lg-7 col-md-12 col-12">
               <div className="appointment-inner">
-                <div className="title">
-                  <h3>Book your appointment</h3>
-                  <p>We will confirm your appointment within 2 hours</p>
+                {/* Title */}
+                <div className="title" style={{ marginBottom: "30px" }}>
+                  <h3
+                    style={{
+                      color: "#1E3A8A",
+                      fontSize: "28px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    Book your appointment
+                  </h3>
+                  <p style={{ color: "#555555", fontSize: "16px" }}>
+                    We will confirm your appointment within 2 hours
+                  </p>
                 </div>
+
+                {/* User Details Card */}
+                <div
+                  className="user-details-card"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    color: "#333333",
+                    padding: "20px",
+                    borderRadius: "10px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    marginBottom: "20px",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-5px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 16px rgba(0, 0, 0, 0.2)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(0, 0, 0, 0.1)";
+                  }}
+                >
+                  <h4
+                    style={{
+                      borderBottom: "2px solid #1E3A8A",
+                      paddingBottom: "10px",
+                    }}
+                  >
+                    Appointment Details
+                  </h4>
+                  <p>
+                    <strong>Name:</strong> {userDetails.name || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {userDetails.email || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {userDetails.phone || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Treatment:</strong> {userDetails.treatment || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Subcategory:</strong> {userDetails.subCategory || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Doctor:</strong> {userDetails.doctor || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Date:</strong> {userDetails.appointmentDate || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Time:</strong> {userDetails.appointmentTime || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Payment Method:</strong> {userDetails.paymentMethod || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Amount Paid:</strong> {userDetails.amountPaid || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Message:</strong> {userDetails.message || "N/A"}
+                  </p>
+                </div>
+
+                {/* Form */}
                 <form className="form" onSubmit={handleSubmit}>
-                  <div className="row">
-                    {/* ... existing form fields ... */}
+                  <div className="row g-4">
+                    {/* Name */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="name" className="visually-hidden">
+                          Name
+                        </label>
                         <input
+                          id="name"
                           name="name"
                           type="text"
                           placeholder="Name"
                           value={userDetails.name}
-                          onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
+                          onChange={(e) =>
+                            setUserDetails({ ...userDetails, name: e.target.value })
+                          }
                           required
+                          style={inputStyle}
+                          aria-required="true"
                         />
                       </div>
                     </div>
+
+                    {/* Email */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="email" className="visually-hidden">
+                          Email
+                        </label>
                         <input
+                          id="email"
                           name="email"
                           type="email"
-                          placeholder="Email"
+                          placeholder="Email (Optional)"
                           value={userDetails.email}
-                          onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
-                          // Removed 'required' attribute
+                          onChange={handleEmailChange}
+                          style={{
+                            ...inputStyle,
+                            borderColor: emailError ? "#e74c3c" : "#ccc",
+                          }}
+                          aria-invalid={emailError ? "true" : "false"}
                         />
+                        {emailError && (
+                          <span
+                            style={{ color: "#e74c3c", fontSize: "14px" }}
+                          >
+                            {emailError}
+                          </span>
+                        )}
                       </div>
                     </div>
+
+                    {/* Phone */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="phone" className="visually-hidden">
+                          Phone
+                        </label>
                         <input
+                          id="phone"
                           name="phone"
                           type="text"
                           placeholder="Phone"
                           value={userDetails.phone}
-                          onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
+                          onChange={(e) =>
+                            setUserDetails({ ...userDetails, phone: e.target.value })
+                          }
                           required
+                          style={inputStyle}
+                          aria-required="true"
                         />
                       </div>
                     </div>
+
+                    {/* Treatment */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="treatment" className="visually-hidden">
+                          Treatment
+                        </label>
                         <select
+                          id="treatment"
                           name="treatment"
                           className="form-select"
                           value={userDetails.treatment}
                           onChange={(e) => {
-                            setUserDetails({ ...userDetails, treatment: e.target.value, subCategory: "" }); // Reset subcategory
+                            setUserDetails({
+                              ...userDetails,
+                              treatment: e.target.value,
+                              subCategory: "",
+                            });
                           }}
                           required
+                          style={selectStyle}
+                          aria-required="true"
                         >
                           <option value="">Select Treatment</option>
                           <option value="Physiotherapy">Physiotherapy</option>
@@ -224,15 +386,25 @@ export default function Staff() {
                         </select>
                       </div>
                     </div>
+
+                    {/* Subcategory */}
                     {userDetails.treatment && (
                       <div className="col-lg-6 col-md-6 col-12">
                         <div className="form-group">
+                          <label htmlFor="subCategory" className="visually-hidden">
+                            Subcategory
+                          </label>
                           <select
+                            id="subCategory"
                             name="subCategory"
                             className="form-select"
                             value={userDetails.subCategory}
-                            onChange={(e) => setUserDetails({ ...userDetails, subCategory: e.target.value })}
+                            onChange={(e) =>
+                              setUserDetails({ ...userDetails, subCategory: e.target.value })
+                            }
                             required
+                            style={selectStyle}
+                            aria-required="true"
                           >
                             <option value="">Select Subcategory</option>
                             {subServices[userDetails.treatment].map((sub, index) => (
@@ -244,14 +416,24 @@ export default function Staff() {
                         </div>
                       </div>
                     )}
+
+                    {/* Doctor */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="doctor" className="visually-hidden">
+                          Doctor
+                        </label>
                         <select
+                          id="doctor"
                           name="doctor"
                           className="form-select"
                           value={userDetails.doctor}
-                          onChange={(e) => setUserDetails({ ...userDetails, doctor: e.target.value })}
+                          onChange={(e) =>
+                            setUserDetails({ ...userDetails, doctor: e.target.value })
+                          }
                           required
+                          style={selectStyle}
+                          aria-required="true"
                         >
                           <option value="">Select Doctor</option>
                           {doctors.map((doctor, index) => (
@@ -262,40 +444,76 @@ export default function Staff() {
                         </select>
                       </div>
                     </div>
+
+                    {/* Date */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="date" className="visually-hidden">
+                          Date
+                        </label>
                         <input
+                          id="date"
                           name="date"
                           type="date"
                           value={userDetails.appointmentDate}
-                          onChange={(e) => setUserDetails({ ...userDetails, appointmentDate: e.target.value })}
+                          onChange={(e) =>
+                            setUserDetails({
+                              ...userDetails,
+                              appointmentDate: e.target.value,
+                            })
+                          }
                           required
+                          style={inputStyle}
+                          aria-required="true"
                         />
                       </div>
                     </div>
+
+                    {/* Time */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="time" className="visually-hidden">
+                          Time
+                        </label>
                         <input
+                          id="time"
                           name="time"
                           type="time"
                           placeholder="Time"
                           value={userDetails.appointmentTime}
-                          onChange={(e) => setUserDetails({ ...userDetails, appointmentTime: e.target.value })}
+                          onChange={(e) =>
+                            setUserDetails({
+                              ...userDetails,
+                              appointmentTime: e.target.value,
+                            })
+                          }
                           required
+                          style={inputStyle}
+                          aria-required="true"
                         />
                       </div>
                     </div>
-                    {/* Payment Method Selection */}
+
+                    {/* Payment Method */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="paymentMethod" className="visually-hidden">
+                          Payment Method
+                        </label>
                         <select
+                          id="paymentMethod"
                           name="paymentMethod"
                           className="form-select"
                           value={userDetails.paymentMethod}
                           onChange={(e) =>
-                            setUserDetails({ ...userDetails, paymentMethod: e.target.value })
+                            setUserDetails({
+                              ...userDetails,
+                              paymentMethod: e.target.value,
+                            })
                           }
                           required
+                          style={selectStyle}
+                          aria-required="true"
                         >
                           <option value="">Select Payment Method</option>
                           <option value="Cash">Cash</option>
@@ -304,49 +522,102 @@ export default function Staff() {
                       </div>
                     </div>
 
-                    {/* Amount Paid Input */}
+                    {/* Amount Paid */}
                     <div className="col-lg-6 col-md-6 col-12">
                       <div className="form-group">
+                        <label htmlFor="amountPaid" className="visually-hidden">
+                          Amount Paid
+                        </label>
                         <input
+                          id="amountPaid"
                           name="amountPaid"
                           type="number"
                           placeholder="Amount Paid"
                           value={userDetails.amountPaid}
                           onChange={(e) =>
-                            setUserDetails({ ...userDetails, amountPaid: e.target.value })
+                            setUserDetails({
+                              ...userDetails,
+                              amountPaid: e.target.value,
+                            })
                           }
                           required
+                          style={inputStyle}
+                          aria-required="true"
                         />
                       </div>
                     </div>
 
+                    {/* Message */}
                     <div className="col-lg-12 col-md-12 col-12">
                       <div className="form-group">
+                        <label htmlFor="message" className="visually-hidden">
+                          Message
+                        </label>
                         <textarea
+                          id="message"
                           name="message"
                           placeholder="Write Your Message Here....."
                           value={userDetails.message}
-                          onChange={(e) => setUserDetails({ ...userDetails, message: e.target.value })}
-                          // Removed 'required' attribute
+                          onChange={(e) =>
+                            setUserDetails({
+                              ...userDetails,
+                              message: e.target.value,
+                            })
+                          }
+                          style={{
+                            ...inputStyle,
+                            resize: "vertical",
+                            minHeight: "100px",
+                          }}
                         ></textarea>
                       </div>
                     </div>
                   </div>
+
+                  {/* Submit Button */}
                   <div className="row">
-                    <div className="col-12">
+                    <div className="col-12 text-center">
                       <div className="form-group">
-                        <div className="button">
-                          <button type="submit" className="btn">
-                            Book Appointment
-                          </button>
-                        </div>
+                        <button
+                          type="submit"
+                          className="btn"
+                          style={{
+                            backgroundColor: "#1E3A8A",
+                            color: "#FFFFFF",
+                            padding: "12px 25px",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            boxShadow: "0 4px 6px rgba(30, 58, 138, 0.3)",
+                            transition:
+                              "background-color 0.3s, box-shadow 0.3s, transform 0.2s",
+                            fontSize: "16px",
+                            fontWeight: "600",
+                          }}
+                          onMouseOver={(e) => {
+                            e.target.style.backgroundColor = "#3B82F6";
+                            e.target.style.boxShadow =
+                              "0 6px 8px rgba(59, 130, 246, 0.4)";
+                            e.target.style.transform = "translateY(-2px)";
+                          }}
+                          onMouseOut={(e) => {
+                            e.target.style.backgroundColor = "#1E3A8A";
+                            e.target.style.boxShadow =
+                              "0 4px 6px rgba(30, 58, 138, 0.3)";
+                            e.target.style.transform = "translateY(0)";
+                          }}
+                        >
+                          Book Appointment
+                        </button>
                       </div>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
-            <div className="col-lg-5 col-md-12">
+
+            {/* Work Hours Section */}
+            <div className="col-lg-5 col-md-12" style={{ marginTop: "30px" }}>
               <WorkHour />
             </div>
           </div>
