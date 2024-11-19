@@ -150,7 +150,7 @@ const TodayAttendedAppointments = () => {
     <div className="container mt-5">
       {/* Header and Export Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="display-4">Today's Attended Appointments</h1>
+        <h1 className="display-4">Today Attended Appointments</h1>
         <Button variant="success" onClick={exportToExcel} className="d-flex align-items-center">
           <FaFileExport className="me-2" />
           Export to Excel
