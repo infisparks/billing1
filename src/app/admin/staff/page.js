@@ -70,9 +70,9 @@ const Pages = () => {
         <div className="col-md-4 mb-4">
           <div className="card text-center shadow">
             <div className="card-body">
-              <h5 className="card-title">Today Appoinment</h5>
-              <p className="card-text">today all user booked appoinemnt.</p>
-              <Link href="/admin/todayattend" className="btn btn-warning">see all user appoinemnt</Link>
+              <h5 className="card-title">Today Appointment</h5>
+              <p className="card-text">Today all user booked appointment.</p>
+              <Link href="/admin/todayattend" className="btn btn-warning">See All User Appointments</Link>
             </div>
           </div>
         </div>
@@ -83,6 +83,17 @@ const Pages = () => {
               <h5 className="card-title">User History</h5>
               <p className="card-text">View user appointment history.</p>
               <Link href="/admin/userhistory" className="btn btn-info">User History</Link>
+            </div>
+          </div>
+        </div>
+
+        {/* New button for downloading invoice */}
+        <div className="col-md-4 mb-4">
+          <div className="card text-center shadow">
+            <div className="card-body">
+              <h5 className="card-title">Download Invoice</h5>
+              <p className="card-text">Download the invoice for today's appointments.</p>
+              <Link href="/admin/invoice" className="btn btn-danger">Download Invoice</Link>
             </div>
           </div>
         </div>
