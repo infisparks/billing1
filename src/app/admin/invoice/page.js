@@ -117,7 +117,7 @@ const TodayAttendedInvoice = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="display-4">
           <FaClinicMedical className="me-2 text-primary" />
-          Today's Attended Appointments Invoice
+          Today Attended Appointments Invoice
         </h1>
         <Button variant="success" onClick={generatePDF} className="d-flex align-items-center">
           <FaFileDownload className="me-2" />
