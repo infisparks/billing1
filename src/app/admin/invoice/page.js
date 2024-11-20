@@ -136,7 +136,7 @@ const TodayAttendedInvoice = () => {
           {/* Company Details */}
           <div className="text-end company-details">
             <h3 className="text-primary">MedZeal</h3>
-            <p>Email: <a href="mailto:medzeal@gmail.com">medzeal@gmail.com</a></p>
+            <p>Email: <a href="mailto:medzealpcw@gmail.com">medzealpcw@gmail.com</a></p>
             <p>Phone: <a href="tel:+91 70441 78786">+91 70441 78786</a></p>
             <p>Address: 1234 Health St, Wellness City</p>
           </div>
