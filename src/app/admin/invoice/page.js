@@ -170,7 +170,7 @@ Mumbra Bypass</p>
               <th>Sr No</th>
               <th>Patient Name</th>
               <th>Phone Number</th>
-              <th>Subcategory</th>
+              <th>Service</th>
               <th>Time</th>
               <th>Price (RS)</th>
               <th>Payment Method</th>
