@@ -92,7 +92,7 @@ const Pages = () => {
           <div className="card text-center shadow">
             <div className="card-body">
               <h5 className="card-title">Download Invoice</h5>
-              <p className="card-text">Download the invoice for today's appointments.</p>
+              <p className="card-text">Download the invoice for today appointments.</p>
               <Link href="/admin/invoice" className="btn btn-danger">Download Invoice</Link>
             </div>
           </div>
