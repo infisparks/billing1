@@ -117,7 +117,7 @@ const TodayAttendedInvoice = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="display-4">
           <FaClinicMedical className="me-2 text-primary" />
-          Today Attended Appointments Invoice
+          Today Attended Appointments Report
         </h1>
         <Button variant="success" onClick={generatePDF} className="d-flex align-items-center">
           <FaFileDownload className="me-2" />
@@ -146,7 +146,7 @@ Mumbra Bypass</p>
 
         {/* Invoice Title */}
         <div className="text-center mb-4">
-          <h2 className="invoice-title">Invoice</h2>
+          <h2 className="invoice-title">Report</h2>
           <p className="invoice-date">Date: {new Date().toLocaleDateString()}</p>
         </div>
 
