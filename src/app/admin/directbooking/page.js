@@ -157,7 +157,7 @@ export default function Staff() {
 
       const encodedMessage = encodeURIComponent(message);
       const whatsappNumber = appointmentData.phone;
-      const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+      const whatsappLink = `https://wa.me/+91${whatsappNumber}?text=${encodedMessage}`;
 
       window.open(whatsappLink, "_blank");
 
