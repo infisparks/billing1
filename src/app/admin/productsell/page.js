@@ -388,7 +388,7 @@ export default function ProductSell() {
               {/* Sales List */}
               <div className="card shadow-sm p-4">
                 <div className="card-body">
-                  <h3 className="card-title text-center mb-4">Today's Sales</h3>
+                  <h3 className="card-title text-center mb-4">Today Sales</h3>
                   {sales.length === 0 ? (
                     <p className="text-center">No sales available for today.</p>
                   ) : (
