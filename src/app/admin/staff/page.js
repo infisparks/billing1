@@ -46,7 +46,7 @@ const AdminDashboard = () => {
           { title: "Today Appointments", icon: faCalendarDay, link: "/admin/todayattend", color: "info" },
           { title: "User History", icon: faHistory, link: "/admin/userhistory", color: "dark" },
           { title: "Download Invoice", icon: faFileInvoice, link: "/admin/invoice", color: "danger" },
-          { title: "Product Entry", icon: faBoxOpen, link: "/admin/productentry", color: "primary" }
+          { title: "Product Entry", icon: faBoxOpen, link: "/admin/productsell", color: "primary" }
         ].map((item, index) => (
           <div key={index} className="col-md-3 col-sm-6">
             <div className={`card h-100 shadow-sm border-0 bg-white`}>
