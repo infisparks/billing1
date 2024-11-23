@@ -12,7 +12,8 @@ import {
   faHistory, 
   faFileInvoice,
   faBoxOpen,
-  faCalendarDay
+  faCalendarDay,
+  faPlusCircle // Icon for Add Product
 } from '@fortawesome/free-solid-svg-icons';
 
 const AdminDashboard = () => {
@@ -46,7 +47,8 @@ const AdminDashboard = () => {
           { title: "Today Appointments", icon: faCalendarDay, link: "/admin/todayattend", color: "info" },
           { title: "User History", icon: faHistory, link: "/admin/userhistory", color: "dark" },
           { title: "Download Invoice", icon: faFileInvoice, link: "/admin/invoice", color: "danger" },
-          { title: "Product Entry", icon: faBoxOpen, link: "/admin/productsell", color: "primary" }
+          { title: "Product Entry", icon: faBoxOpen, link: "/admin/productsell", color: "primary" },
+          { title: "Add Product", icon: faPlusCircle, link: "/admin/addproduct", color: "success" } // New option
         ].map((item, index) => (
           <div key={index} className="col-md-3 col-sm-6">
             <div className={`card h-100 shadow-sm border-0 bg-white`}>
@@ -58,11 +60,11 @@ const AdminDashboard = () => {
                   <h5 className="card-title text-center mb-3">{item.title}</h5>
                 </div>
                 <Link 
-  href={item.link} 
-  className={`btn btn-${item.color} text-white w-100`}>
-  {item.title === "Approved Appointments" ? "View Appointments" : "Go to " + item.title}
-</Link>
-
+                  href={item.link} 
+                  className={`btn btn-${item.color} text-white w-100`}
+                >
+                  {item.title === "Approved Appointments" ? "View Appointments" : "Go to " + item.title}
+                </Link>
               </div>
               {item.title === "Approved Appointments" && (
                 <div className="card-footer bg-transparent border-0">
@@ -80,4 +82,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
