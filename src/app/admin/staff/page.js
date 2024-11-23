@@ -1,10 +1,21 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link'; // Import Link from next/link
+import Link from 'next/link';
 import { db } from '../../../lib/firebaseConfig'; 
 import { ref, onValue } from 'firebase/database';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faCalendarPlus, 
+  faBookOpen, 
+  faCheckCircle, 
+  faUserCheck, 
+  faHistory, 
+  faFileInvoice,
+  faBoxOpen,
+  faCalendarDay
+} from '@fortawesome/free-solid-svg-icons';
 
-const Pages = () => {
+const AdminDashboard = () => {
   const [unapprovedCount, setUnapprovedCount] = useState(0);
 
   useEffect(() => {
@@ -17,7 +28,6 @@ const Pages = () => {
           Object.entries(appointment).map(([id, details]) => details)
         );
 
-        // Count unapproved appointments
         const count = allAppointments.filter(appointment => !appointment.approved).length;
         setUnapprovedCount(count);
       }
@@ -25,81 +35,49 @@ const Pages = () => {
   }, []);
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center">Admin Dashboard</h1>
-      <div className="row justify-content-center mt-4">
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">Create Appointment</h5>
-              <p className="card-text">Add a new appointment for a user.</p>
-              <Link href="/admin/createData" className="btn btn-primary">Create Appointment</Link>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">Book Appointment</h5>
-              <p className="card-text">Book Appoinemnt fully with payment.</p>
-              <Link href="/admin/directbooking" className="btn btn-secondary">Book Appointment</Link>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">Approved Appointments</h5>
-              <p className="card-text">Manage approved appointments.</p>
-              <Link href="/admin/approval" className="btn btn-success">Approved Appointments</Link>
-              <p className="mt-3">
-                Unapproved Appointments: <strong>{unapprovedCount}</strong>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">User Presence</h5>
-              <p className="card-text">Track user attendance for appointments.</p>
-              <Link href="/admin/attend" className="btn btn-warning">Mark User Present</Link>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">Today Appointment</h5>
-              <p className="card-text">Today all user booked appointment.</p>
-              <Link href="/admin/todayattend" className="btn btn-warning">See All User Appointments</Link>
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">User History</h5>
-              <p className="card-text">View user appointment history.</p>
-              <Link href="/admin/userhistory" className="btn btn-info">User History</Link>
-            </div>
-          </div>
-        </div>
+    <div className="container-fluid p-4 bg-light">
+      <h1 className="text-center mb-5 text-primary">Admin Dashboard</h1>
+      <div className="row g-4">
+        {[
+          { title: "Create Appointment", icon: faCalendarPlus, link: "/admin/createData", color: "primary" },
+          { title: "Book Appointment", icon: faBookOpen, link: "/admin/directbooking", color: "secondary" },
+          { title: "Approved Appointments", icon: faCheckCircle, link: "/admin/approval", color: "success" },
+          { title: "Mark User Present", icon: faUserCheck, link: "/admin/attend", color: "warning" },
+          { title: "Today Appointments", icon: faCalendarDay, link: "/admin/todayattend", color: "info" },
+          { title: "User History", icon: faHistory, link: "/admin/userhistory", color: "dark" },
+          { title: "Download Invoice", icon: faFileInvoice, link: "/admin/invoice", color: "danger" },
+          { title: "Product Entry", icon: faBoxOpen, link: "/admin/productentry", color: "primary" }
+        ].map((item, index) => (
+          <div key={index} className="col-md-3 col-sm-6">
+            <div className={`card h-100 shadow-sm border-0 bg-white`}>
+              <div className="card-body d-flex flex-column justify-content-between">
+                <div>
+                  <div className={`icon-wrapper text-center mb-3`}>
+                    <FontAwesomeIcon icon={item.icon} className={`fa-3x text-${item.color}`} />
+                  </div>
+                  <h5 className="card-title text-center mb-3">{item.title}</h5>
+                </div>
+                <Link 
+  href={item.link} 
+  className={`btn btn-${item.color} text-white w-100`}>
+  {item.title === "Approved Appointments" ? "View Appointments" : "Go to " + item.title}
+</Link>
 
-        {/* New button for downloading invoice */}
-        <div className="col-md-4 mb-4">
-          <div className="card text-center shadow">
-            <div className="card-body">
-              <h5 className="card-title">Download Invoice</h5>
-              <p className="card-text">Download the invoice for today appointments.</p>
-              <Link href="/admin/invoice" className="btn btn-danger">Download Invoice</Link>
+              </div>
+              {item.title === "Approved Appointments" && (
+                <div className="card-footer bg-transparent border-0">
+                  <p className="text-center mb-0">
+                    Unapproved: <span className="badge bg-danger">{unapprovedCount}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default Pages;
+export default AdminDashboard;
+
