@@ -181,6 +181,7 @@ const DoctorDashboard = () => {
                   <th>Total Amount Collected(rs)</th>
                 </tr>
               </thead>
+              
               <tbody>
                 {aggregatedData.map((doctor, index) => (
                   <tr key={index}>
