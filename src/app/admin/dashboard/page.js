@@ -46,6 +46,7 @@ const Dashboard = () => {
         {[ 
           { title: 'Total Users', count: usersCount, path: '/admin/users' },
           { title: 'Total Appointments', count: appointmentsCount, path: '/admin/appointments' },
+          { title: 'Doctor Report', path: '/admin/docotrreport' },
           { title: 'Total Blogs', count: blogsCount, path: '/admin/blogmake' },
           { title: 'Price Graph', path: '/admin/graphprice' },
           { title: 'Total Appointments Graph', path: '/admin/graphtotal' },
