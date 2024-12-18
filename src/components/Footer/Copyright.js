@@ -8,7 +8,9 @@ export default function Copyright() {
               <div className="copyright-content">
                 <p>
                   © Copyright 2024 | All Rights Reserved by{" "}
-                  <a href="#">Medzeal</a>{" "}
+                  <a href="https://infispark.in" target="_blank" rel="noopener noreferrer">
+                    Infispark
+                  </a>
                 </p>
               </div>
             </div>
