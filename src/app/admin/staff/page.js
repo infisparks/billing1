@@ -58,7 +58,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="container-fluid p-4 bg-light">
-      <h1 className="text-center mb-5 text-primary">Admin Dashboard</h1>
+      <h1 className="text-center mb-5 text-primary">Staff Dashboard</h1>
       <div className="row g-4">
         {[
           // { title: "Create Appointment", icon: faCalendarPlus, link: "/admin/createData", color: "primary" },

@@ -44,7 +44,7 @@ const Dashboard = () => {
       <div className="row">
         {/* Create a consistent card size using Bootstrap classes */}
         {[ 
-          { title: 'Total Users', count: usersCount, path: '/admin/users' },
+          // { title: 'Total Users', count: usersCount, path: '/admin/users' },
           { title: 'Total Appointments', count: appointmentsCount, path: '/admin/appointments' },
           { title: 'Doctor Report', path: '/admin/doctorreport' },
           { title: 'Total Blogs', count: blogsCount, path: '/admin/blogmake' },
