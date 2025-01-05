@@ -10,52 +10,68 @@ export const metadata = {
 };
 
 export default function DoctorSchedule() {
-  const scheduleData = [
+  // Define the days of the week
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  // Define the time slots based on doctors' availability
+  const timeSlots = [
+    { start: "10:00 AM", end: "1:00 PM" },
+    { start: "11:30 AM", end: "1:30 PM" },
+    { start: "2:00 PM", end: "5:00 PM" },
+    { start: "5:00 PM", end: "8:00 PM" },
+    { start: "8:00 PM", end: "10:00 PM" },
+  ];
+
+  // Define doctors with their availability
+  const doctors = [
     {
-      time: "9.00",
-      doctors: [
-        { name: "Dr. Tanner", specialty: "Dermatologist" },
-        { name: "Dr. Kwak", specialty: "Ear, Nose Specialist" },
-        { name: "Dr. Slaughter", specialty: "Neurologist" },
-        { name: "", specialty: "" },
-        { name: "Dr. Foley", specialty: "Oncologist" },
-        { name: "Dr. Palmer", specialty: "Maxillofacial Surgeon" },
+      name: "Dr. Saheba",
+      specialty: "General Practitioner",
+      availability: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], time: "11:30 AM - 1:30 PM" },
       ],
     },
     {
-      time: "12.00",
-      doctors: [
-        { name: "", specialty: "" },
-        { name: "Dr. Megahead", specialty: "Orthopedics" },
-        { name: "Dr. Neupane", specialty: "Pain Management" },
-        { name: "Dr. Breidin", specialty: "Radiologist" },
-        { name: "", specialty: "" },
-        { name: "Dr. Pipe", specialty: "Surgeon" },
+      name: "Dr. Shajar",
+      specialty: "Specialist Surgeon",
+      availability: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], time: "2:00 PM - 5:00 PM" },
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], time: "8:00 PM - 10:00 PM" },
       ],
     },
     {
-      time: "15.00",
-      doctors: [
-        { name: "Dr. Tanner", specialty: "Dermatologist" },
-        { name: "Dr. Kwak", specialty: "Ear, Nose Specialist" },
-        { name: "", specialty: "" },
-        { name: "Dr. Slaughter", specialty: "Neurologist" },
-        { name: "Dr. Foley", specialty: "Oncologist" },
-        { name: "", specialty: "" },
+      name: "Dr. Shoeb",
+      specialty: "Orthopedic Specialist",
+      availability: [
+        { days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], time: "5:00 PM - 8:00 PM" },
       ],
     },
     {
-      time: "18.00",
-      doctors: [
-        { name: "Dr. Slaughter", specialty: "Neurologist" },
-        { name: "Dr. Megahead", specialty: "Orthopedics" },
-        { name: "Dr. Neupane", specialty: "Pain Management" },
-        { name: "Dr. Breidin", specialty: "Radiologist" },
-        { name: "Dr. Kwak", specialty: "Ear, Nose Specialist" },
-        { name: "Dr. Pipe", specialty: "Surgeon" },
+      name: "Faiz Ahmed Shaikh",
+      specialty: "Cardiologist",
+      availability: [
+        { days: ["Monday", "Wednesday", "Saturday"], time: "10:00 AM - 1:00 PM" },
+      ],
+    },
+    {
+      name: "Rupa Nandi",
+      specialty: "Pediatrician",
+      availability: [
+        { days: ["Monday", "Wednesday", "Saturday"], time: "2:00 PM - 5:00 PM" },
       ],
     },
   ];
+
+  // Helper function to get doctors available for a specific day and time slot
+  const getDoctorsForSlot = (day, time) => {
+    return doctors
+      .filter((doctor) =>
+        doctor.availability.some(
+          (slot) => slot.days.includes(day) && slot.time === `${time.start} - ${time.end}`
+        )
+      )
+      .map((doctor) => ({ name: doctor.name, specialty: doctor.specialty }));
+  };
 
   return (
     <>
@@ -63,31 +79,42 @@ export default function DoctorSchedule() {
         <h1>Doctor Schedule</h1>
         <p>Check out our weekly schedule to find available doctors and specialists at Medzeal Mumbra.</p>
 
-        <table className="table">
+        <table className="table table-bordered">
           <thead>
             <tr>
               <th>Time</th>
-              <th>Monday</th>
-              <th>Tuesday</th>
-              <th>Wednesday</th>
-              <th>Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
+              {days.map((day) => (
+                <th key={day}>{day}</th>
+              ))}
             </tr>
           </thead>
 
           <tbody>
-            {scheduleData.map((slot, index) => (
+            {timeSlots.map((slot, index) => (
               <tr key={index}>
                 <td>
-                  <span className="time">{slot.time}</span>
+                  <span className="time">
+                    <div>{slot.start}</div>
+                    <div>{slot.end}</div>
+                  </span>
                 </td>
-                {slot.doctors.map((doctor, subIndex) => (
-                  <td key={subIndex}>
-                    {doctor.name && <h3>{doctor.name}</h3>}
-                    {doctor.specialty && <span>{doctor.specialty}</span>}
-                  </td>
-                ))}
+                {days.map((day, dayIndex) => {
+                  const availableDoctors = getDoctorsForSlot(day, slot);
+                  return (
+                    <td key={dayIndex}>
+                      {availableDoctors.length > 0 ? (
+                        availableDoctors.map((doctor, docIndex) => (
+                          <div key={docIndex}>
+                            <h4>{doctor.name}</h4>
+                            <span>{doctor.specialty}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <span>--</span>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

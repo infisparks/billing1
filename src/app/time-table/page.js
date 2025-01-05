@@ -16,7 +16,7 @@ export default function TimeTable() {
             <div className="col-lg-12">
               <SectionHead
                 title="Determine Your Date to Come"
-                desc="Lorem ipsum dolor sit amet consectetur adipiscing elit praesent aliquet. pretiumts"
+                desc="Medzeal Doctor time table"
               />
             </div>
           </div>
