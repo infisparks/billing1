@@ -27,9 +27,10 @@ export default function Home() {
       {/* <CallAction /> */}
       {/* <Portfolio /> */}
       <Services />
+      
       <Testimonial />
       {/* <Departments /> */}
-      
+
       <Pricing />
       {/* <Team /> */}
       {/* <Blog /> */}
