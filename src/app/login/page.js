@@ -11,6 +11,7 @@ const provider = new GoogleAuthProvider();
 const db = getDatabase(app);
 
 const LoginPage = () => {
+  
   const router = useRouter();
   const [error, setError] = useState(null);
 
