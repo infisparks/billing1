@@ -12,10 +12,13 @@ const AppointmentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingAppointment, setEditingAppointment] = useState(null);
 
+  // Get the current year dynamically
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     const appointmentsRef = ref(db, 'appointments');
 
-    onValue(appointmentsRef, (snapshot) => {
+    const unsubscribe = onValue(appointmentsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const attendedAppointments = Object.entries(data)
@@ -33,6 +36,9 @@ const AppointmentsPage = () => {
         setAppointments([]);
       }
     });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const filteredAppointments = useMemo(() => {
@@ -87,7 +93,7 @@ const AppointmentsPage = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments');
 
-    // Generate buffer
+    // Generate and download the Excel file
     XLSX.writeFile(workbook, 'appointments.xlsx');
   };
 
@@ -181,11 +187,14 @@ const AppointmentsPage = () => {
             className="form-select"
           >
             <option value="">All Years</option>
-            {Array.from({ length: 10 }, (_, i) => (
-              <option key={i} value={2024 - i}>
-                {2024 - i}
-              </option>
-            ))}
+            {Array.from({ length: 10 }, (_, i) => {
+              const year = currentYear - i;
+              return (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>
@@ -271,6 +280,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.appointmentDate}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -281,6 +291,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.appointmentTime}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -291,6 +302,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.doctor}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -300,6 +312,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.message}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   ></textarea>
                 </div>
                 <div className="mb-3">
@@ -310,6 +323,9 @@ const AppointmentsPage = () => {
                     value={editingAppointment.price}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    min="0"
+                    step="0.01"
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -320,6 +336,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.name}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -330,6 +347,7 @@ const AppointmentsPage = () => {
                     value={editingAppointment.phone}
                     onChange={handleEditFormChange}
                     className="form-control"
+                    required
                   />
                 </div>
                 <button type="submit" className="btn btn-primary me-2">
@@ -375,6 +393,14 @@ const AppointmentsPage = () => {
           background-color: #fff;
           padding: 20px;
           border-radius: 5px;
+        }
+        /* Optional: Scrollbar styling for better UX */
+        .modal-content::-webkit-scrollbar {
+          width: 8px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
         }
       `}</style>
     </div>
