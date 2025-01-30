@@ -50,6 +50,7 @@ const Dashboard = () => {
       console.error('Error fetching blogs:', error);
     });
 
+    
     // Fetching all products to determine low stock
     const unsubscribeVendors = onValue(vendorsRef, (snapshot) => {
       const data = snapshot.val();
