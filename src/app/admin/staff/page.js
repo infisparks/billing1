@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { db } from "../../../lib/firebaseConfig";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, off } from "firebase/database";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarPlus,
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
 
     return () => {
       // Cleanup listener
-      onValue(appointmentsRef, () => {});
+      off(appointmentsRef, fetchAppointments);
     };
   }, []);
 
@@ -61,14 +61,16 @@ const AdminDashboard = () => {
       <h1 className="text-center mb-5 text-primary">Staff Dashboard</h1>
       <div className="row g-4">
         {[
-          
+          // Uncomment and customize the following lines if needed
           // { title: "Create Appointment", icon: faCalendarPlus, link: "/admin/createData", color: "primary" },
           { title: "Book Appointment", icon: faBookOpen, link: "/admin/directbooking", color: "secondary" },
           { title: "Approved Appointments", icon: faCheckCircle, link: "/admin/approval", color: "success" },
           { title: "Mark User Present", icon: faUserCheck, link: "/admin/attend", color: "warning" },
           { title: "Today Appointments", icon: faCalendarDay, link: "/admin/todayattend", color: "info" },
           { title: "User History", icon: faHistory, link: "/admin/userhistory", color: "dark" },
+          { title: "Sell Product", icon: faBoxOpen, link: "/admin/inventrysell", color: "dark" },
           { title: "Download Invoice", icon: faFileInvoice, link: "/admin/invoice", color: "danger" },
+          // Uncomment and customize the following lines if needed
           // { title: "Product Entry", icon: faBoxOpen, link: "/admin/productsell", color: "primary" },
           // { title: "Add Product", icon: faPlusCircle, link: "/admin/addproduct", color: "success" },
         ].map((item, index) => (
