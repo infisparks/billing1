@@ -36,6 +36,10 @@ const SellPage = () => {
     },
   ]);
 
+  // Discount
+  const [discountPercentage, setDiscountPercentage] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+
   // Loading / Error states
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -210,7 +214,32 @@ const SellPage = () => {
   };
 
   //--------------------------------------------------
-  // 5. Validate form
+  // 5. Helper Functions for Calculations
+  //--------------------------------------------------
+  // Calculate total amount before discount
+  const calculateTotalAmount = () => {
+    return saleProducts.reduce((acc, { quantity, mrpPrice }) => {
+      const qty = parseInt(quantity, 10) || 0;
+      const price = parseFloat(mrpPrice) || 0;
+      return acc + qty * price;
+    }, 0);
+  };
+
+  // Calculate discount amount
+  const calculateDiscount = () => {
+    const total = calculateTotalAmount();
+    return (total * discountPercentage) / 100;
+  };
+
+  // Update final amount whenever total or discount changes
+  useEffect(() => {
+    const total = calculateTotalAmount();
+    const discount = calculateDiscount();
+    setFinalAmount(total - discount);
+  }, [saleProducts, discountPercentage]);
+
+  //--------------------------------------------------
+  // 6. Validate form
   //--------------------------------------------------
   const validateForm = () => {
     let isValid = true;
@@ -229,17 +258,21 @@ const SellPage = () => {
       isValid = false;
     }
 
+    // Discount Percentage
+    if (discountPercentage < 0 || discountPercentage > 100) {
+      newErrors.discountPercentage = "Discount must be between 0 and 100.";
+      isValid = false;
+    }
+
     // Each sale product
     saleProducts.forEach((item, index) => {
       if (!item.productId) {
-        newErrors[`saleProduct-${index}-productId`] =
-          "Please select a product.";
+        newErrors[`saleProduct-${index}-productId`] = "Please select a product.";
         isValid = false;
       }
       const qty = parseInt(item.quantity, 10);
       if (!qty || qty < 1) {
-        newErrors[`saleProduct-${index}-quantity`] =
-          "Quantity must be at least 1.";
+        newErrors[`saleProduct-${index}-quantity`] = "Quantity must be at least 1.";
         isValid = false;
       }
     });
@@ -249,7 +282,7 @@ const SellPage = () => {
   };
 
   //--------------------------------------------------
-  // 6. Submit & process sale
+  // 7. Submit & process sale
   //--------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -264,6 +297,11 @@ const SellPage = () => {
     }
 
     try {
+      // Calculate totals
+      const totalAmount = calculateTotalAmount();
+      const discountAmount = calculateDiscount();
+      const finalSaleAmount = finalAmount;
+
       // Create a new sale entry
       const saleRef = push(ref(db, "sales"));
       const saleId = saleRef.key; // unique ID for this sale
@@ -273,6 +311,9 @@ const SellPage = () => {
         customerNumber: customer.number,
         date: new Date().toISOString(),
         products: {},
+        discountPercentage,
+        discountAmount,
+        finalAmount: finalSaleAmount,
       };
 
       // We'll gather updates for vendor product quantities & histories
@@ -366,6 +407,8 @@ const SellPage = () => {
           vendorId: "",
         },
       ]);
+      setDiscountPercentage(0);
+      setFinalAmount(0);
       setErrors({});
       setSuggestions([]);
       setShowSuggestions(false);
@@ -379,7 +422,7 @@ const SellPage = () => {
   };
 
   //--------------------------------------------------
-  // 7. Handle suggestion selection
+  // 8. Handle suggestion selection
   //--------------------------------------------------
   const handleSuggestionClick = (user) => {
     setCustomer({ name: user.name, number: user.phone });
@@ -404,7 +447,7 @@ const SellPage = () => {
   }, []);
 
   //--------------------------------------------------
-  // 8. Render
+  // 9. Render
   //--------------------------------------------------
   if (loading) {
     return (
@@ -428,9 +471,7 @@ const SellPage = () => {
 
   return (
     <div className="container mt-5 mb-5">
-      <h1 className="display-4 text-center mb-4">
-        Sell Products (All Products Listed)
-      </h1>
+      <h1 className="display-4 text-center mb-4">Sell Products (All Products Listed)</h1>
       <form onSubmit={handleSubmit} noValidate>
         {/* Status Alerts */}
         {submissionStatus.success && (
@@ -602,6 +643,55 @@ const SellPage = () => {
                 </div>
               </div>
             ))}
+          </Card.Body>
+        </Card>
+
+        {/* Discount Percentage */}
+        <Card className="mb-4 shadow-sm">
+          <Card.Header className="bg-warning text-white">
+            <h5 className="text-white">Discount</h5>
+          </Card.Header>
+          <Card.Body>
+            <Form.Group className="mb-3" controlId="discountPercentage">
+              <Form.Label>Discount Percentage (%)</Form.Label>
+              <Form.Control
+                type="number"
+                name="discountPercentage"
+                value={discountPercentage}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value) || 0;
+                  setDiscountPercentage(value);
+                  setErrors((prev) => ({ ...prev, discountPercentage: "" }));
+                }}
+                placeholder="Enter discount percentage"
+                min="0"
+                max="100"
+                isInvalid={!!errors.discountPercentage}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.discountPercentage}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Card.Body>
+        </Card>
+
+        {/* Totals Summary */}
+        <Card className="mb-4 shadow-sm">
+          <Card.Header className="bg-info text-white">
+            <h5 className="text-white">Summary</h5>
+          </Card.Header>
+          <Card.Body>
+            <ListGroup variant="flush">
+              <ListGroup.Item>
+                <strong>Total Amount:</strong> ₹{calculateTotalAmount().toFixed(2)}
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <strong>Discount ({discountPercentage}%):</strong> ₹{calculateDiscount().toFixed(2)}
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <strong>Final Amount:</strong> ₹{finalAmount.toFixed(2)}
+              </ListGroup.Item>
+            </ListGroup>
           </Card.Body>
         </Card>
 

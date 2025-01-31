@@ -47,11 +47,14 @@ export default function Staff() {
     message: "",
     paymentMethod: "",
     amountPaid: "",
+    isConsultant: false, // Added for checkbox
+    consultantAmount: "", // Added for consultant amount
   };
 
   const [userDetails, setUserDetails] = useState(initialUserDetails);
   const [doctors, setDoctors] = useState([]);
   const [emailError, setEmailError] = useState("");
+  const [consultantAmountError, setConsultantAmountError] = useState(""); // Optional: For validation
 
   const subServices = {
     Physiotherapy: [
@@ -114,12 +117,34 @@ export default function Staff() {
     }
   };
 
+  const handleConsultantChange = (e) => {
+    const isChecked = e.target.checked;
+    setUserDetails({
+      ...userDetails,
+      isConsultant: isChecked,
+      consultantAmount: isChecked ? userDetails.consultantAmount : "",
+    });
+
+    // Optional: Reset consultant amount error when checkbox is toggled
+    if (!isChecked) {
+      setConsultantAmountError("");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (emailError) {
       alert("Please fix the errors in the form before submitting.");
       return;
+    }
+
+    // Optional: Validate consultant amount if checkbox is checked
+    if (userDetails.isConsultant && userDetails.consultantAmount.trim() === "") {
+      setConsultantAmountError("Please enter the consultant amount.");
+      return;
+    } else {
+      setConsultantAmountError("");
     }
 
     const formData = new FormData(event.target);
@@ -140,12 +165,21 @@ export default function Staff() {
       price: formData.get("amountPaid"),
     };
 
+    // Include consultantAmount only if isConsultant is true
+    if (userDetails.isConsultant && userDetails.consultantAmount.trim() !== "") {
+      appointmentData.consultantAmount = userDetails.consultantAmount;
+    }
+
     try {
       const newAppointmentRef = push(ref(db, `appointments/test`));
       await set(newAppointmentRef, appointmentData);
       alert("Appointment booked successfully!");
 
       let message = `Hello ${appointmentData.name},\n\nYour appointment has been booked successfully! Here are your details:\n- Treatment: ${appointmentData.treatment}\n- Service: ${appointmentData.subCategory}\n- Doctor: ${appointmentData.doctor}\n- Date: ${appointmentData.appointmentDate}\n- Time: ${appointmentData.appointmentTime}\n- Payment Method: ${appointmentData.paymentMethod}\n- Amount Paid: ${appointmentData.price}`;
+
+      if (appointmentData.consultantAmount) {
+        message += `\n- Consultant Amount: ${appointmentData.consultantAmount}`;
+      }
 
       if (appointmentData.message && appointmentData.message.trim() !== "") {
         message += `\n- Message: ${appointmentData.message}`;
@@ -280,6 +314,12 @@ export default function Staff() {
                   <p>
                     <strong>Message:</strong> {userDetails.message || "N/A"}
                   </p>
+                  {userDetails.isConsultant && (
+                    <p>
+                      <strong>Consultant Amount:</strong>{" "}
+                      {userDetails.consultantAmount || "N/A"}
+                    </p>
+                  )}
                 </div>
 
                 {/* Form */}
@@ -546,6 +586,61 @@ export default function Staff() {
                         />
                       </div>
                     </div>
+
+                    {/* Add Consultant Amount Checkbox */}
+                    <div className="col-lg-12 col-md-12 col-12">
+                      <div className="form-group" style={{ display: "flex", alignItems: "center" }}>
+                        <input
+                          id="isConsultant"
+                          name="isConsultant"
+                          type="checkbox"
+                          checked={userDetails.isConsultant}
+                          onChange={handleConsultantChange}
+                          style={{ marginRight: "10px", width: "20px", height: "20px" }}
+                        />
+                        <label htmlFor="isConsultant" style={{ fontSize: "16px" }}>
+                          Add Consultant Amount
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Consultant Amount Input (conditionally rendered) */}
+                    {userDetails.isConsultant && (
+                      <div className="col-lg-6 col-md-6 col-12">
+                        <div className="form-group">
+                          <label htmlFor="consultantAmount" className="visually-hidden">
+                            Consultant Amount
+                          </label>
+                          <input
+                            id="consultantAmount"
+                            name="consultantAmount"
+                            type="number"
+                            placeholder="Consultant Amount"
+                            value={userDetails.consultantAmount}
+                            onChange={(e) =>
+                              setUserDetails({
+                                ...userDetails,
+                                consultantAmount: e.target.value,
+                              })
+                            }
+                            required={userDetails.isConsultant}
+                            style={{
+                              ...inputStyle,
+                              borderColor: consultantAmountError ? "#e74c3c" : "#ccc",
+                            }}
+                            aria-required={userDetails.isConsultant ? "true" : "false"}
+                            aria-invalid={consultantAmountError ? "true" : "false"}
+                          />
+                          {consultantAmountError && (
+                            <span
+                              style={{ color: "#e74c3c", fontSize: "14px" }}
+                            >
+                              {consultantAmountError}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Message */}
                     <div className="col-lg-12 col-md-12 col-12">

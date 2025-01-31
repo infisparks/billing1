@@ -1,22 +1,22 @@
 "use client";
-import React, { useEffect, useState, useMemo } from 'react';
-import { db } from '../../../lib/firebaseConfig';
-import { ref, onValue, update, remove } from 'firebase/database';
-import * as XLSX from 'xlsx';
+import React, { useEffect, useState, useMemo } from "react";
+import { db } from "../../../lib/firebaseConfig";
+import { ref, onValue, update, remove } from "firebase/database";
+import * as XLSX from "xlsx";
 
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingAppointment, setEditingAppointment] = useState(null);
 
   // Get the current year dynamically
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    const appointmentsRef = ref(db, 'appointments');
+    const appointmentsRef = ref(db, "appointments");
 
     const unsubscribe = onValue(appointmentsRef, (snapshot) => {
       const data = snapshot.val();
@@ -41,6 +41,7 @@ const AppointmentsPage = () => {
     return () => unsubscribe();
   }, []);
 
+  // Filtered Appointments
   const filteredAppointments = useMemo(() => {
     if (!appointments) return [];
 
@@ -48,10 +49,10 @@ const AppointmentsPage = () => {
       ({ appointmentDate, doctor, message, name, phone }) => {
         const isDateMatch = selectedDate ? appointmentDate === selectedDate : true;
         const isMonthMatch = selectedMonth
-          ? appointmentDate.split('-')[1] === selectedMonth
+          ? appointmentDate.split("-")[1] === selectedMonth
           : true;
         const isYearMatch = selectedYear
-          ? appointmentDate.split('-')[0] === selectedYear
+          ? appointmentDate.split("-")[0] === selectedYear
           : true;
         const isSearchMatch =
           doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,6 +65,7 @@ const AppointmentsPage = () => {
     );
   }, [appointments, selectedDate, selectedMonth, selectedYear, searchTerm]);
 
+  // Total Price Calculation
   const totalPrice = useMemo(() => {
     return filteredAppointments.reduce((acc, { price }) => {
       const numericPrice = parseFloat(price);
@@ -74,9 +76,21 @@ const AppointmentsPage = () => {
     }, 0);
   }, [filteredAppointments]);
 
-  const today = new Date().toISOString().split('T')[0];
+  // Total Consultant Amount Calculation
+  const totalConsultant = useMemo(() => {
+    return filteredAppointments.reduce((acc, { consultantAmount }) => {
+      const numericConsultant = parseFloat(consultantAmount);
+      if (isNaN(numericConsultant) || numericConsultant <= 0) {
+        return acc; // Skip if consultantAmount is not a valid number or zero/negative
+      }
+      return acc + numericConsultant;
+    }, 0);
+  }, [filteredAppointments]);
 
-  // Function to handle export to Excel
+  // Today's Date
+  const today = new Date().toISOString().split("T")[0];
+
+  // Export to Excel
   const handleExport = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       filteredAppointments.map((appointment) => ({
@@ -85,36 +99,36 @@ const AppointmentsPage = () => {
         Doctor: appointment.doctor,
         Message: appointment.message,
         Price: appointment.price,
+        ConsultantAmount: appointment.consultantAmount,
         Name: appointment.name,
         Phone: appointment.phone,
       }))
     );
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Appointments');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Appointments");
 
     // Generate and download the Excel file
-    XLSX.writeFile(workbook, 'appointments.xlsx');
+    XLSX.writeFile(workbook, "appointments.xlsx");
   };
 
-  // Function to handle delete
+  // Delete Appointment
   const handleDelete = (key, id) => {
     const appointmentRef = ref(db, `appointments/${key}/${id}`);
     remove(appointmentRef)
       .then(() => {
-        console.log('Appointment deleted successfully');
+        console.log("Appointment deleted successfully");
       })
       .catch((error) => {
-        console.error('Error deleting appointment:', error);
+        console.error("Error deleting appointment:", error);
       });
   };
 
-  // Function to handle edit
+  // Edit Appointment
   const handleEdit = (appointment) => {
     setEditingAppointment(appointment);
   };
 
-  // Function to handle form changes
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
     setEditingAppointment((prevAppointment) => ({
@@ -123,18 +137,17 @@ const AppointmentsPage = () => {
     }));
   };
 
-  // Function to update appointment
   const handleUpdateAppointment = (e) => {
     e.preventDefault();
     const { key, id, ...updatedData } = editingAppointment;
     const appointmentRef = ref(db, `appointments/${key}/${id}`);
     update(appointmentRef, updatedData)
       .then(() => {
-        console.log('Appointment updated successfully');
+        console.log("Appointment updated successfully");
         setEditingAppointment(null);
       })
       .catch((error) => {
-        console.error('Error updating appointment:', error);
+        console.error("Error updating appointment:", error);
       });
   };
 
@@ -173,8 +186,8 @@ const AppointmentsPage = () => {
           >
             <option value="">All Months</option>
             {Array.from({ length: 12 }, (_, i) => (
-              <option key={i} value={String(i + 1).padStart(2, '0')}>
-                {new Date(0, i).toLocaleString('default', { month: 'long' })}
+              <option key={i} value={String(i + 1).padStart(2, "0")}>
+                {new Date(0, i).toLocaleString("default", { month: "long" })}
               </option>
             ))}
           </select>
@@ -209,8 +222,9 @@ const AppointmentsPage = () => {
         Export to Excel
       </button>
 
-      {/* Total Price Display */}
-      <h2 className="h5 mb-4">Total Price: ₹{totalPrice}</h2>
+      {/* Totals Display */}
+      <h2 className="h5 mb-2">Total Price: ₹{totalPrice.toFixed(2)}</h2>
+      <h2 className="h5 mb-4">Total Consultant Amount: ₹{totalConsultant.toFixed(2)}</h2>
 
       <div className="row">
         {filteredAppointments.length > 0 ? (
@@ -233,6 +247,12 @@ const AppointmentsPage = () => {
                   <p>
                     <strong>Price:</strong> ₹{appointment.price}
                   </p>
+                  {/* Show Consultant Amount if available */}
+                  {appointment.consultantAmount && (
+                    <p>
+                      <strong>Consultant Amount:</strong> ₹{appointment.consultantAmount}
+                    </p>
+                  )}
                   <p>
                     <strong>Name:</strong> {appointment.name}
                   </p>
@@ -326,6 +346,19 @@ const AppointmentsPage = () => {
                     min="0"
                     step="0.01"
                     required
+                  />
+                </div>
+                {/* (Optional) Consultant Amount Field */}
+                <div className="mb-3">
+                  <label className="form-label">Consultant Amount:</label>
+                  <input
+                    type="number"
+                    name="consultantAmount"
+                    value={editingAppointment.consultantAmount || ""}
+                    onChange={handleEditFormChange}
+                    className="form-control"
+                    min="0"
+                    step="0.01"
                   />
                 </div>
                 <div className="mb-3">

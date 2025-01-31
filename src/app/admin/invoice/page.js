@@ -9,7 +9,7 @@ import {
   FaCreditCard,
   FaClinicMedical
 } from 'react-icons/fa';
-import { Spinner, Button, Table } from 'react-bootstrap';
+import { Spinner, Button, Table, Form } from 'react-bootstrap';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -19,6 +19,11 @@ const TodayAttendedInvoice = () => {
   const [loading, setLoading] = useState(true);
   const [totalCash, setTotalCash] = useState(0);
   const [totalOnline, setTotalOnline] = useState(0);
+  const [totalConsultant, setTotalConsultant] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   
   const invoiceRef = useRef();
 
@@ -30,16 +35,17 @@ const TodayAttendedInvoice = () => {
     // Fetch Appointments
     const handleAppointments = (snapshot) => {
       const data = snapshot.val();
-      const today = new Date().toISOString().split('T')[0];
+      const date = selectedDate;
 
       const attendedAppointments = [];
       let cashTotal = 0;
       let onlineTotal = 0;
+      let consultantTotal = 0;
 
       if (data) {
         Object.entries(data).forEach(([userId, userAppointments]) => {
           Object.entries(userAppointments).forEach(([id, details]) => {
-            if (details.attended === true && details.appointmentDate === today) {
+            if (details.attended === true && details.appointmentDate === date) {
               attendedAppointments.push({ ...details, id, userId });
               if (details.price) {
                 const price = parseFloat(details.price);
@@ -48,6 +54,10 @@ const TodayAttendedInvoice = () => {
                 } else if (details.paymentMethod === 'Online') {
                   onlineTotal += price;
                 }
+              }
+              if (details.consultantAmount) {
+                const consultantPrice = parseFloat(details.consultantAmount);
+                consultantTotal += consultantPrice;
               }
             }
           });
@@ -64,6 +74,7 @@ const TodayAttendedInvoice = () => {
       setAppointments(attendedAppointments);
       setTotalCash(cashTotal);
       setTotalOnline(onlineTotal);
+      setTotalConsultant(consultantTotal);
       setLoading(false);
     };
 
@@ -82,7 +93,12 @@ const TodayAttendedInvoice = () => {
       off(appointmentsRef, 'value', handleAppointments);
       off(doctorsRef, 'value', handleDoctors);
     };
-  }, []);
+  }, [selectedDate]); // Re-run when selectedDate changes
+
+  const handleDateChange = (e) => {
+    setLoading(true);
+    setSelectedDate(e.target.value);
+  };
 
   const generatePDF = () => {
     const pdf = new jsPDF('p', 'pt', 'a4');
@@ -90,7 +106,7 @@ const TodayAttendedInvoice = () => {
 
     pdf.html(invoice, {
       callback: function (doc) {
-        doc.save(`Invoice_${new Date().toISOString().split('T')[0]}.pdf`);
+        doc.save(`Invoice_${selectedDate}.pdf`);
       },
       margin: [20, 20, 20, 20],
       autoPaging: 'text',
@@ -114,15 +130,29 @@ const TodayAttendedInvoice = () => {
   return (
     <div className="container mt-5 mb-5">
       {/* Header and Download Button */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
         <h1 className="display-4">
           <FaClinicMedical className="me-2 text-primary" />
-          Today Attended Appointments Report
+          Attended Appointments Report
         </h1>
-        <Button variant="success" onClick={generatePDF} className="d-flex align-items-center">
-          <FaFileDownload className="me-2" />
-          Download PDF
-        </Button>
+        <div className="d-flex align-items-center mt-3 mt-md-0">
+          <Form.Group controlId="dateFilter" className="me-3">
+            <Form.Label className="mb-1">Select Date:</Form.Label>
+            <Form.Control 
+              type="date" 
+              value={selectedDate} 
+              onChange={handleDateChange} 
+            />
+          </Form.Group>
+          <Button 
+            variant="success" 
+            onClick={generatePDF} 
+            className="d-flex align-items-center mt-3 mt-md-0"
+          >
+            <FaFileDownload className="me-2" />
+            Download PDF
+          </Button>
+        </div>
       </div>
 
       {/* Invoice Content */}
@@ -137,17 +167,15 @@ const TodayAttendedInvoice = () => {
           <div className="text-end company-details">
             <h3 className="text-primary">MedZeal</h3>
             <p>Email: <a href="mailto:medzealpcw@gmail.com">medzealpcw@gmail.com</a></p>
-            <p>Phone: <a href="tel:+91 70441 78786">+91 70441 78786</a></p>
-            <p>Address: 
-Bluebells
-Mumbra Bypass</p>
+            <p>Phone: <a href="tel:+917044178786">+91 70441 78786</a></p>
+            <p>Address: Bluebells, Mumbra Bypass</p>
           </div>
         </div>
 
         {/* Invoice Title */}
         <div className="text-center mb-4">
           <h2 className="invoice-title">Report</h2>
-          <p className="invoice-date">Date: {new Date().toLocaleDateString()}</p>
+          <p className="invoice-date">Date: {new Date(selectedDate).toLocaleDateString()}</p>
         </div>
 
         {/* Invoice Number and Doctor Details */}
@@ -173,6 +201,7 @@ Mumbra Bypass</p>
               <th>Service</th>
               <th>Time</th>
               <th>Price (RS)</th>
+              <th>Consultant Amount (RS)</th>
               <th>Payment Method</th>
             </tr>
           </thead>
@@ -184,7 +213,16 @@ Mumbra Bypass</p>
                 <td>{appointment.phone || 'N/A'}</td>
                 <td>{appointment.subCategory || 'N/A'}</td>
                 <td>{appointment.appointmentTime || 'N/A'}</td>
-                <td>{appointment.price !== undefined && appointment.price !== null ? `RS ${appointment.price}` : 'N/A'}</td>
+                <td>
+                  {appointment.price !== undefined && appointment.price !== null 
+                    ? `RS ${parseFloat(appointment.price).toFixed(2)}` 
+                    : 'N/A'}
+                </td>
+                <td>
+                  {appointment.consultantAmount 
+                    ? `RS ${parseFloat(appointment.consultantAmount).toFixed(2)}`
+                    : 'N/A'}
+                </td>
                 <td>
                   {appointment.paymentMethod || 'N/A'}{' '}
                   {appointment.paymentMethod === 'Cash' ? (
@@ -199,15 +237,21 @@ Mumbra Bypass</p>
           <tfoot>
             <tr>
               <th colSpan="5" className="text-end">Total Cash</th>
-              <th colSpan="2">RS {totalCash.toFixed(2)}</th>
+              <th colSpan="3">RS {totalCash.toFixed(2)}</th>
             </tr>
             <tr>
               <th colSpan="5" className="text-end">Total Online</th>
-              <th colSpan="2">RS {totalOnline.toFixed(2)}</th>
+              <th colSpan="3">RS {totalOnline.toFixed(2)}</th>
+            </tr>
+            <tr>
+              <th colSpan="5" className="text-end">Total Consultant Amount</th>
+              <th colSpan="3">RS {totalConsultant.toFixed(2)}</th>
             </tr>
             <tr>
               <th colSpan="5" className="text-end">Grand Total</th>
-              <th colSpan="2">RS {(totalCash + totalOnline).toFixed(2)}</th>
+              <th colSpan="3">
+                RS {(totalCash + totalOnline + totalConsultant).toFixed(2)}
+              </th>
             </tr>
           </tfoot>
         </Table>
@@ -310,6 +354,18 @@ Mumbra Bypass</p>
           }
           .justify-content-between {
             justify-content: flex-start !important;
+          }
+          .align-items-center {
+            align-items: flex-start !important;
+          }
+          .me-2 {
+            margin-right: 0.5rem !important;
+          }
+          .ms-1 {
+            margin-left: 0.25rem !important;
+          }
+          .mt-3 {
+            margin-top: 1rem !important;
           }
         }
         /* Custom Styles */

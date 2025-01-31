@@ -24,11 +24,11 @@ import * as XLSX from "xlsx";
  * SalesListPage
  *
  * Displays a comprehensive list of all sales transactions.
- * Shows total sales amount, total number of sales, and top customer.
+ * Shows total sales amount (after discount), total number of sales, top customer, and total discount.
  * Includes search, date range filtering, and "Today" filter functionalities.
  * Allows deletion of sales with corresponding inventory updates.
  * Features an Export to Excel option.
- * Designed with a professional and responsive UI.
+ * Professional, responsive UI with discount details.
  */
 const SalesListPage = () => {
   // State variables
@@ -39,8 +39,9 @@ const SalesListPage = () => {
   const [fetchError, setFetchError] = useState("");
 
   // State for summaries
-  const [totalSalesAmount, setTotalSalesAmount] = useState(0);
+  const [totalSalesAmount, setTotalSalesAmount] = useState(0); // sum of final amounts
   const [totalNumberOfSales, setTotalNumberOfSales] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0); // sum of all discounts
 
   // State for search and filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,7 +93,7 @@ const SalesListPage = () => {
   }, []);
 
   //--------------------------------------------------
-  // 2. Fetch Products Data (for productPrice)
+  // 2. Fetch Products Data (for product restore)
   //--------------------------------------------------
   useEffect(() => {
     const fetchProducts = async () => {
@@ -109,12 +110,12 @@ const SalesListPage = () => {
               Object.entries(vendorObj.products).forEach(
                 ([productId, productObj]) => {
                   productsArray.push({
-                    vendorId, // Needed for matching
+                    vendorId,
                     productId,
                     name: productObj.name,
                     mrpPrice: productObj.mrpPrice,
-                    productPrice: productObj.productPrice || 0, // Assuming productPrice is stored
-                    quantityAvailable: productObj.quantity || 0, // Assuming quantity is stored
+                    productPrice: productObj.productPrice || 0,
+                    quantityAvailable: productObj.quantity || 0,
                   });
                 }
               );
@@ -141,18 +142,29 @@ const SalesListPage = () => {
   //--------------------------------------------------
   useEffect(() => {
     if (!loadingSales && !loadingProducts && sales.length > 0) {
-      let totalAmount = 0;
+      let sumFinal = 0;
+      let sumDiscount = 0;
 
       sales.forEach((sale) => {
-        Object.values(sale.products).forEach((product) => {
-          totalAmount += product.totalPrice;
-        });
+        // If sale.finalAmount exists, we use it; otherwise sum product totals
+        const productsArray = Object.values(sale.products || {});
+        const subtotal = productsArray.reduce(
+          (acc, product) => acc + (product.totalPrice || 0),
+          0
+        );
+        const discount = sale.discountAmount || 0; 
+        const finalAmount = sale.finalAmount || subtotal;
+
+        sumFinal += finalAmount;
+        sumDiscount += discount;
       });
 
-      setTotalSalesAmount(totalAmount);
+      setTotalSalesAmount(sumFinal);
+      setTotalDiscount(sumDiscount);
       setTotalNumberOfSales(sales.length);
     } else {
       setTotalSalesAmount(0);
+      setTotalDiscount(0);
       setTotalNumberOfSales(0);
     }
   }, [loadingSales, loadingProducts, sales]);
@@ -162,16 +174,16 @@ const SalesListPage = () => {
   //--------------------------------------------------
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page on search
-    setIsTodayFilterActive(false); // Reset "Today" filter when searching
-    setDateRange({ from: "", to: "" }); // Reset date range
+    setCurrentPage(1);
+    setIsTodayFilterActive(false);
+    setDateRange({ from: "", to: "" });
   };
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     setDateRange((prev) => ({ ...prev, [name]: value }));
-    setCurrentPage(1); // Reset to first page on filter
-    setIsTodayFilterActive(false); // Reset "Today" filter when selecting date range
+    setCurrentPage(1);
+    setIsTodayFilterActive(false);
   };
 
   // Handle "Today" filter
@@ -179,8 +191,8 @@ const SalesListPage = () => {
     const today = dayjs().format("YYYY-MM-DD");
     setDateRange({ from: today, to: today });
     setIsTodayFilterActive(true);
-    setCurrentPage(1); // Reset to first page on filter
-    setSearchQuery(""); // Reset search query
+    setCurrentPage(1);
+    setSearchQuery("");
   };
 
   // Handle "Clear Filters"
@@ -209,7 +221,7 @@ const SalesListPage = () => {
   });
 
   //--------------------------------------------------
-  // 5. Pagination Calculations
+  // 5. Pagination
   //--------------------------------------------------
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -240,19 +252,19 @@ const SalesListPage = () => {
     if (!confirmDelete) return;
 
     const saleId = sale.saleId;
-
-    // Prepare updates object
     const updates = {};
 
-    // Iterate through each product in the sale to restore quantities and remove sellhistory
+    // Iterate through each product in the sale to restore quantities
     Object.values(sale.products).forEach((product) => {
       const { vendorId, productId, quantity } = product;
-
-      // Restore the sold quantity
       const productQuantityPath = `vendors/${vendorId}/products/${productId}/quantity`;
+
+      // Find current product quantity from local products state
       const currentQuantity = products.find(
         (p) => p.productId === productId && p.vendorId === vendorId
       )?.quantityAvailable || 0;
+
+      // Restore the sold quantity
       updates[productQuantityPath] = currentQuantity + quantity;
 
       // Remove the sellhistory entry associated with this sale
@@ -266,23 +278,28 @@ const SalesListPage = () => {
     try {
       await update(ref(db), updates);
 
-      // Update local state to remove the deleted sale
+      // Update local state
       setSales((prevSales) =>
         prevSales.filter((currentSale) => currentSale.saleId !== saleId)
       );
 
-      // Update summaries
+      // Recalculate summaries (since we removed a sale)
       setTotalNumberOfSales((prev) => prev - 1);
-      setTotalSalesAmount((prev) =>
-        prev - Object.values(sale.products).reduce(
-          (acc, product) => acc + product.totalPrice,
-          0
-        )
+
+      // If sale has finalAmount, remove that from totalSalesAmount; else remove sum of product total
+      const productsArray = Object.values(sale.products || {});
+      const subtotal = productsArray.reduce(
+        (acc, product) => acc + (product.totalPrice || 0),
+        0
       );
+      const discount = sale.discountAmount || 0;
+      const finalAmt = sale.finalAmount || subtotal;
+      setTotalSalesAmount((prev) => prev - finalAmt);
+      setTotalDiscount((prev) => prev - discount);
 
       // Update products state to reflect restored quantities
       const updatedProducts = products.map((product) => {
-        const matchedSaleProduct = Object.values(sale.products).find(
+        const matchedSaleProduct = productsArray.find(
           (sp) =>
             sp.productId === product.productId &&
             sp.vendorId === product.vendorId
@@ -298,14 +315,12 @@ const SalesListPage = () => {
       setProducts(updatedProducts);
 
       setDeleteSuccess("Sale deleted successfully.");
-      // Optionally, you can show a temporary success message
       setTimeout(() => {
         setDeleteSuccess("");
       }, 3000);
     } catch (error) {
       console.error("Error deleting sale:", error);
       setDeleteError("Failed to delete sale. Please try again.");
-      // Optionally, you can show a temporary error message
       setTimeout(() => {
         setDeleteError("");
       }, 5000);
@@ -324,29 +339,39 @@ const SalesListPage = () => {
     // Prepare data for Excel
     const excelData = filteredSales.map((sale, index) => {
       const saleDate = dayjs(sale.date).format("DD MMM YYYY, h:mm A");
-      const productsSold = Object.values(sale.products)
+      const productsArray = Object.values(sale.products || {});
+      const productDetails = productsArray
         .map(
           (product) =>
-            `${product.productName} (Qty: ${product.quantity}, MRP: ₹${product.mrpPrice.toLocaleString()}, Total: ₹${product.totalPrice.toLocaleString()})`
+            `${product.productName} (Qty: ${
+              product.quantity
+            }, MRP: ₹${product.mrpPrice?.toLocaleString() || 0}, Total: ₹${(
+              product.totalPrice || 0
+            ).toLocaleString()})`
         )
         .join("\n");
 
-      const saleTotalAmount = Object.values(sale.products).reduce(
-        (acc, product) => acc + product.totalPrice,
+      // Subtotal, discount, final
+      const subtotal = productsArray.reduce(
+        (acc, p) => acc + (p.totalPrice || 0),
         0
       );
+      const discount = sale.discountAmount || 0;
+      const finalAmount = sale.finalAmount || subtotal;
 
       return {
-        "S.No": indexOfFirstItem + index + 1,
+        "S.No": index + 1,
         "Customer Name": sale.customerName,
         "Customer Number": sale.customerNumber,
         Date: saleDate,
-        "Products Sold": productsSold,
-        "Total Amount (₹)": saleTotalAmount,
+        "Products Sold": productDetails,
+        Subtotal: subtotal,
+        "Discount (₹)": discount,
+        "Final Amount (₹)": finalAmount,
       };
     });
 
-    // Create worksheet and workbook
+    // Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sales");
@@ -368,7 +393,7 @@ const SalesListPage = () => {
   };
 
   //--------------------------------------------------
-  // 8. Render Loading and Error States
+  // 8. Render Loading / Error
   //--------------------------------------------------
   if (loadingSales || loadingProducts) {
     return (
@@ -397,39 +422,51 @@ const SalesListPage = () => {
         <Col>
           <h1 className="display-5 text-center">Sales Overview</h1>
           <p className="text-center text-muted">
-            View and manage all sales transactions.
+            View and manage all sales transactions (with discounts).
           </p>
         </Col>
       </Row>
 
       {/* Summary Cards */}
       <Row className="mb-4">
-        <Col md={6} lg={4} className="mb-3">
+        <Col md={6} lg={3} className="mb-3">
           <Card className="text-white bg-primary shadow-sm">
             <Card.Body>
               <Card.Title>Total Sales Amount</Card.Title>
-              <Card.Text style={{ fontSize: "1.5rem", color: "white" }}>
+              <Card.Text style={{ fontSize: "1.3rem", color: "white" }}>
                 ₹{totalSalesAmount.toLocaleString()}
               </Card.Text>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={6} lg={4} className="mb-3">
+
+        <Col md={6} lg={3} className="mb-3">
+          <Card className="text-white bg-success shadow-sm">
+            <Card.Body>
+              <Card.Title>Total Discount</Card.Title>
+              <Card.Text style={{ fontSize: "1.3rem", color: "white" }}>
+                ₹{totalDiscount.toLocaleString()}
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6} lg={3} className="mb-3">
           <Card className="text-white bg-info shadow-sm">
             <Card.Body>
               <Card.Title>Total Number of Sales</Card.Title>
-              <Card.Text style={{ fontSize: "1.5rem", color: "white" }}>
+              <Card.Text style={{ fontSize: "1.3rem", color: "white" }}>
                 {totalNumberOfSales}
               </Card.Text>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={6} lg={4} className="mb-3">
+
+        <Col md={6} lg={3} className="mb-3">
           <Card className="text-white bg-warning shadow-sm">
             <Card.Body>
               <Card.Title>Top Customer</Card.Title>
-              <Card.Text style={{ fontSize: "1.5rem", color: "white" }}>
-                {/* Calculate top customer */}
+              <Card.Text style={{ fontSize: "1.3rem", color: "white" }}>
                 {(() => {
                   if (sales.length === 0) return "N/A";
                   const customerMap = {};
@@ -508,7 +545,7 @@ const SalesListPage = () => {
                 onClick={handleClearFilters}
                 aria-label="Clear All Filters"
               >
-                Clear Filters
+                Clear
               </Button>
             </Col>
           </Row>
@@ -566,44 +603,51 @@ const SalesListPage = () => {
                 <th>Customer Name</th>
                 <th>Customer Number</th>
                 <th>Date</th>
-                <th>Products Sold</th>
-                <th>Total Amount (₹)</th>
-                <th>Action</th> {/* Delete Column */}
+                <th>Products Sold (Subtotal)</th>
+                <th>Discount (₹)</th>
+                <th>Final Amount (₹)</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {currentSales.map((sale, index) => {
-                // Calculate total amount for each sale
-                let saleTotalAmount = 0;
-
-                Object.values(sale.products).forEach((product) => {
-                  saleTotalAmount += product.totalPrice;
-                });
+                const productsArray = Object.values(sale.products || {});
+                // Subtotal is sum of product totalPrices
+                const subtotal = productsArray.reduce(
+                  (acc, p) => acc + (p.totalPrice || 0),
+                  0
+                );
+                const discount = sale.discountAmount || 0;
+                // If finalAmount doesn't exist, fallback to subtotal
+                const finalAmt = sale.finalAmount || subtotal;
 
                 return (
                   <tr key={sale.saleId}>
                     <td>{indexOfFirstItem + index + 1}</td>
                     <td>{sale.customerName}</td>
                     <td>{sale.customerNumber}</td>
-                    <td>
-                      {dayjs(sale.date).format("DD MMM YYYY, h:mm A")}
-                    </td>
+                    <td>{dayjs(sale.date).format("DD MMM YYYY, h:mm A")}</td>
                     <td>
                       <ul className="list-unstyled mb-0">
-                        {Object.values(sale.products).map((product) => (
+                        {productsArray.map((product) => (
                           <li
                             key={product.productId + product.vendorId}
                             style={{ whiteSpace: "pre-wrap" }}
                           >
-                            <strong>{product.productName}</strong> - Quantity:{" "}
+                            <strong>{product.productName}</strong> - Qty:{" "}
                             {product.quantity} | MRP: ₹
-                            {product.mrpPrice.toLocaleString()} | Total: ₹
-                            {product.totalPrice.toLocaleString()}
+                            {product.mrpPrice?.toLocaleString() || 0} | Total: ₹
+                            {product.totalPrice?.toLocaleString() || 0}
                           </li>
                         ))}
                       </ul>
                     </td>
-                    <td>₹{saleTotalAmount.toLocaleString()}</td>
+                    <td className="text-danger">
+                      {discount > 0
+                        ? `- ₹${discount.toLocaleString()}`
+                        : "—"}
+                    </td>
+                    <td>₹{finalAmt.toLocaleString()}</td>
                     <td>
                       <Button
                         variant="danger"
